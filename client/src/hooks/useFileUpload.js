@@ -1,73 +1,54 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback } from 'react'
+
+const TEXT_EXT_RE = /\.(js|jsx|ts|tsx|json|css|scss|html|md|mdx|py|rs|go|java|kt|c|cpp|h|hpp|cs|rb|php|sh|bash|yaml|yml|toml|sql|graphql|gql|txt|env|xml|svg|vue|svelte)$/i
+
+function readAsText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = reject
+    reader.readAsText(file)
+  })
+}
 
 /**
- * Handles file uploads.
- *
- * The current backend has no dedicated file-upload REST endpoint —
- * content is synced via Yjs. This hook simulates per-file progress
- * and calls onComplete with the DroppedFile list when done.
- *
- * When a real upload endpoint is added (e.g. POST /rooms/:id/files),
- * replace the body of uploadSingle() with an axios multipart POST.
+ * Reads dropped/browsed files as text and writes them into the room's
+ * shared Yjs files map via ensureFile(path, content) from useYjsDoc.
+ * There's no REST upload endpoint (nor should there be — content lives
+ * in the CRDT doc and rides the existing snapshot/debounce persistence).
+ * Non-text files are skipped with a warning; Yjs isn't a blob store.
  */
-export function useFileUpload(roomId, onComplete) {
+export function useFileUpload(ensureFile) {
   const [uploads,     setUploads]     = useState([])
   const [isUploading, setIsUploading] = useState(false)
-  const abortRef = useRef(null)
 
-  const setProgress = useCallback((relativePath, progress, status) => {
-    setUploads((prev) =>
-      prev.map((u) =>
-        u.relativePath === relativePath ? { ...u, progress, status } : u
-      )
-    )
+  const setStatus = useCallback((relativePath, status) => {
+    setUploads((prev) => prev.map((u) => (u.relativePath === relativePath ? { ...u, status } : u)))
   }, [])
 
   const uploadFiles = useCallback(async (files) => {
-    if (!files.length) return
-
-    abortRef.current = new AbortController()
+    if (!files.length || !ensureFile) return
     setIsUploading(true)
+    setUploads(files.map((f) => ({ fileName: f.file.name, relativePath: f.relativePath, status: 'pending' })))
 
-    setUploads(
-      files.map((f) => ({
-        fileName:     f.file.name,
-        relativePath: f.relativePath,
-        progress:     0,
-        status:       'pending',
-      }))
-    )
-
-    // Simulated sequential upload — replace with real axios call when ready
-    async function uploadSingle(file) {
-      setProgress(file.relativePath, 0, 'uploading')
-      const steps = 8
-      const delay = Math.min(800, Math.max(100, file.file.size / 5000))
-      for (let i = 1; i <= steps; i++) {
-        await new Promise((r) => setTimeout(r, delay))
-        setProgress(file.relativePath, Math.round((i / steps) * 100), 'uploading')
+    for (const { file, relativePath } of files) {
+      if (!TEXT_EXT_RE.test(relativePath)) {
+        setStatus(relativePath, 'skipped-binary')
+        continue
       }
-      setProgress(file.relativePath, 100, 'done')
-    }
-
-    for (const file of files) {
-      if (abortRef.current?.signal.aborted) break
+      setStatus(relativePath, 'uploading')
       try {
-        await uploadSingle(file)
+        const content = await readAsText(file)
+        ensureFile(relativePath, content)
+        setStatus(relativePath, 'done')
       } catch {
-        setProgress(file.relativePath, 0, 'error')
+        setStatus(relativePath, 'error')
       }
     }
-
     setIsUploading(false)
-    onComplete?.(files)
-  }, [onComplete, setProgress])
-
-  const overallProgress = uploads.length
-    ? Math.round(uploads.reduce((acc, u) => acc + u.progress, 0) / uploads.length)
-    : 0
+  }, [ensureFile, setStatus])
 
   const clearUploads = useCallback(() => setUploads([]), [])
 
-  return { uploadFiles, uploads, overallProgress, isUploading, clearUploads }
+  return { uploadFiles, uploads, isUploading, clearUploads }
 }

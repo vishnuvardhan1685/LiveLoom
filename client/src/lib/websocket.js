@@ -13,10 +13,9 @@
 
 export const WS_URL = import.meta.env.VITE_WS_URL ?? 'ws://localhost:4000'
 
-/**
- * Build the WebSocket URL for a room session.
- * Both `ticket` and `roomId` are required query params (see ws/connection.js).
- */
-export function buildWsUrl(ticket, roomId) {
-  return `${WS_URL}/ws?ticket=${encodeURIComponent(ticket)}&roomId=${encodeURIComponent(roomId)}`
+// ticket/roomId must go through the `params` option, not be baked into the
+// serverUrl string — y-websocket appends its own path/query after serverUrl,
+// which corrupted these when they were inlined here before.
+export function buildWsBase() {
+  return `${WS_URL}/ws`
 }

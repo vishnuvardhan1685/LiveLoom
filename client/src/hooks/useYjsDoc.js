@@ -1,103 +1,92 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import * as Y from 'yjs'
 import { WebsocketProvider } from 'y-websocket'
-import { MonacoBinding } from 'y-monaco'
-import { buildWsUrl } from '@/lib/websocket'
+import { buildWsBase } from '@/lib/websocket'
+import { colorForUserId } from '@/lib/collabColors'
 
 /**
- * Binds a Monaco editor instance to a Yjs Y.Doc via y-monaco.
- *
- * WS URL format (matches ws/connection.js): /ws?ticket=X&roomId=Y
- * Each (roomId + fileId) pair gets its own Y.Doc room: `${roomId}:${fileId}`
- *
- * @param {object} options
- * @param {string}  options.roomId   - backend room id
- * @param {string}  options.fileId   - active file path (used as Yjs room suffix)
- * @param {string|null} options.ticket - WS ticket from POST /rooms/:id/tickets
- * @param {object|null} options.editor - Monaco editor instance
+ * One Y.Doc + one WebsocketProvider per ROOM (not per file). Matches the
+ * server: docRegistry keys a single Y.Doc by roomId, and Document.js stores
+ * one snapshot per room. Individual files live as Y.Text values inside a
+ * shared Y.Map('files'), keyed by relative path.
  */
-export function useYjsDoc({ roomId, fileId, ticket, editor }) {
+export function useYjsDoc({ roomId, ticket, user }) {
   const [syncStatus, setSyncStatus] = useState('offline')
+  const [fileTreeVersion, setFileTreeVersion] = useState(0) // bump on files-map change
 
-  const ydocRef    = useRef(null)
+  const ydocRef     = useRef(null)
   const providerRef = useRef(null)
-  const bindingRef  = useRef(null)
+  const filesMapRef = useRef(null)
 
-  // Create Y.Doc + WebsocketProvider whenever roomId / fileId / ticket changes
   useEffect(() => {
-    if (!ticket || !roomId || !fileId) return
-
-    // Tear down previous session
-    bindingRef.current?.destroy()
-    providerRef.current?.destroy()
-    ydocRef.current?.destroy()
-    bindingRef.current = null
-    providerRef.current = null
-    ydocRef.current = null
+    if (!ticket || !roomId) return
 
     const ydoc = new Y.Doc()
     ydocRef.current = ydoc
+    const filesMap = ydoc.getMap('files')
+    filesMapRef.current = filesMap
 
-    // WS room name: roomId:fileId (y-websocket uses this as the room key)
-    const wsUrl    = buildWsUrl(ticket, roomId)
-    const roomName = `${roomId}:${fileId}`
-
-    const provider = new WebsocketProvider(wsUrl, roomName, ydoc, { connect: true })
+    const provider = new WebsocketProvider(buildWsBase(), roomId, ydoc, {
+      params: { ticket, roomId },
+    })
     providerRef.current = provider
 
+    if (user) {
+      provider.awareness.setLocalStateField('user', {
+        id: user.id,
+        name: user.name ?? user.email,
+        color: colorForUserId(user.id),
+      })
+    }
+
     setSyncStatus('syncing')
+    provider.on('status', ({ status }) => setSyncStatus(status === 'connected' ? 'syncing' : 'offline'))
+    provider.on('sync', (isSynced) => setSyncStatus(isSynced ? 'synced' : 'syncing'))
 
-    provider.on('status', ({ status }) => {
-      setSyncStatus(status === 'connected' ? 'syncing' : 'offline')
-    })
-
-    provider.on('sync', (isSynced) => {
-      setSyncStatus(isSynced ? 'synced' : 'syncing')
-    })
+    const onFilesChange = () => setFileTreeVersion((v) => v + 1)
+    filesMap.observe(onFilesChange)
 
     return () => {
-      bindingRef.current?.destroy()
+      filesMap.unobserve(onFilesChange)
       provider.destroy()
       ydoc.destroy()
-      bindingRef.current = null
-      providerRef.current = null
       ydocRef.current = null
+      providerRef.current = null
+      filesMapRef.current = null
       setSyncStatus('offline')
     }
-  }, [roomId, fileId, ticket])
+  }, [roomId, ticket, user?.id])
 
-  // (Re-)bind Monaco editor when editor / ticket / fileId changes
-  useEffect(() => {
-    if (!editor || !ticket || !roomId || !fileId) return
+  /** Create a file if it doesn't exist yet; no-op (keeps history) if it does. */
+  const ensureFile = useCallback((path, initialContent = '') => {
+    const filesMap = filesMapRef.current
+    if (!filesMap || filesMap.has(path)) return
+    const ytext = new Y.Text()
+    if (initialContent) ytext.insert(0, initialContent)
+    filesMap.set(path, ytext)
+  }, [])
 
-    const t = setTimeout(() => {
-      if (!ydocRef.current || !providerRef.current) return
-      const model = editor.getModel()
-      if (!model) return
+  const deleteFile = useCallback((path) => {
+    filesMapRef.current?.delete(path)
+  }, [])
 
-      bindingRef.current?.destroy()
+  const listFilePaths = useCallback(() => {
+    return filesMapRef.current ? Array.from(filesMapRef.current.keys()) : []
+  }, [])
 
-      const binding = new MonacoBinding(
-        ydocRef.current.getText('content'),
-        model,
-        new Set([editor]),
-        providerRef.current.awareness
-      )
-      bindingRef.current = binding
-    }, 50)
-
-    return () => {
-      clearTimeout(t)
-      bindingRef.current?.destroy()
-      bindingRef.current = null
-    }
-  }, [editor, roomId, fileId, ticket])
+  const getFileText = useCallback((path) => {
+    return filesMapRef.current?.get(path) ?? null
+  }, [])
 
   return {
-    ydoc:       ydocRef.current,
-    provider:   providerRef.current,
-    binding:    bindingRef.current,
+    ydoc: ydocRef.current,
+    provider: providerRef.current,
+    awareness: providerRef.current?.awareness ?? null,
     syncStatus,
-    awareness:  providerRef.current?.awareness ?? null,
+    fileTreeVersion, // dependency for consumers deriving the tree from listFilePaths()
+    ensureFile,
+    deleteFile,
+    listFilePaths,
+    getFileText,
   }
 }

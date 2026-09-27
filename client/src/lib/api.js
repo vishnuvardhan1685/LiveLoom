@@ -9,6 +9,9 @@ export const apiClient = axios.create({
   timeout: 10_000,
 })
 
+export const api = apiClient
+export default apiClient
+
 // Attach JWT on every request
 // Server reads: Authorization: Bearer <token>
 // Token field from server response: { token } (not accessToken)
