@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <rect width="32" height="32" rx="6" fill="#0a0a0a"/>
+  <!-- Woven threads motif -->
+  <path d="M8 4 Q14 16 8 28" stroke="#7c6af7" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <path d="M16 4 Q22 16 16 28" stroke="#7c6af7" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <path d="M24 4 Q30 16 24 28" stroke="#7c6af7" stroke-width="0.8" fill="none" stroke-linecap="round" opacity="0.5"/>
+  <path d="M4 14 Q16 10 28 14" stroke="#7c6af7" stroke-width="0.8" fill="none" stroke-linecap="round" opacity="0.6"/>
+  <path d="M4 20 Q16 24 28 20" stroke="#7c6af7" stroke-width="0.8" fill="none" stroke-linecap="round" opacity="0.6"/>
+</svg>

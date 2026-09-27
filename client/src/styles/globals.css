@@ -1,0 +1,197 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Design Tokens ─── */
+:root {
+  --accent:         #7c6af7;
+  --accent-dim:     rgba(124, 106, 247, 0.12);
+  --accent-border:  rgba(124, 106, 247, 0.3);
+  --bg-base:        #0a0a0a;
+  --bg-surface:     #111111;
+  --bg-elevated:    #161616;
+  --bg-hover:       #1e1e1e;
+  --border:         #262626;
+  --border-subtle:  #1a1a1a;
+  --text-primary:   #e8e8e8;
+  --text-secondary: #888888;
+  --text-muted:     #555555;
+  --status-synced:  #22c55e;
+  --status-syncing: #f59e0b;
+  --status-offline: #ef4444;
+  --sidebar-width:  220px;
+  --topbar-height:  44px;
+  --statusbar-height: 24px;
+  --terminal-height:  200px;
+  --tab-height:     36px;
+}
+
+/* ─── Base Reset ─── */
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; padding: 0; }
+body {
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+code, pre, .font-mono {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+
+/* ─── Focus ─── */
+:focus-visible { outline: 1.5px solid var(--accent); outline-offset: 2px; }
+
+/* ─── Auth ─── */
+.auth-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 100vh;
+  background: var(--bg-base);
+  color: var(--text-primary);
+}
+@media (min-width: 768px) {
+  .auth-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ─── File tree ─── */
+.file-tree-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 3px 8px; border-radius: 3px; cursor: pointer;
+  font-size: 13px; color: var(--text-secondary);
+  user-select: none; transition: background 0.1s, color 0.1s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.file-tree-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.file-tree-item.active { background: var(--accent-dim); color: var(--accent); }
+
+/* ─── Tab bar ─── */
+.editor-tab {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 14px; height: var(--tab-height);
+  font-size: 12.5px; font-family: 'JetBrains Mono', monospace;
+  border-right: 1px solid var(--border-subtle);
+  cursor: pointer; color: var(--text-muted);
+  background: var(--bg-surface);
+  transition: background 0.1s, color 0.1s;
+  min-width: 0; flex-shrink: 0;
+}
+.editor-tab:hover { background: var(--bg-elevated); color: var(--text-secondary); }
+.editor-tab.active {
+  background: var(--bg-base); color: var(--text-primary);
+  border-bottom: 1.5px solid var(--accent);
+}
+.editor-tab .close-btn { opacity: 0; transition: opacity 0.1s; border-radius: 3px; padding: 1px; }
+.editor-tab:hover .close-btn { opacity: 1; }
+
+/* ─── Presence avatars ─── */
+.avatar-ring {
+  border-radius: 50%; border: 2px solid;
+  transition: transform 0.1s;
+}
+.avatar-ring:hover { transform: scale(1.1); z-index: 10; }
+
+/* ─── Terminal ─── */
+.terminal-panel {
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px; color: var(--text-secondary);
+  overflow-y: auto; flex-shrink: 0;
+}
+.terminal-line { padding: 1px 12px; line-height: 1.5; }
+.terminal-line.info    { color: #60a5fa; }
+.terminal-line.warn    { color: #f59e0b; }
+.terminal-line.error   { color: #ef4444; }
+.terminal-line.success { color: #22c55e; }
+.terminal-line.crdt    { color: #a78bfa; }
+.terminal-line.p2p     { color: #34d399; }
+
+/* ─── Status bar ─── */
+.status-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 12px;
+  height: var(--statusbar-height);
+  background: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #0a0a0a; font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* ─── Inputs / forms ─── */
+.ll-input {
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 4px; padding: 9px 12px;
+  font-size: 14px; font-family: 'IBM Plex Sans', sans-serif;
+  color: var(--text-primary); outline: none;
+  transition: border-color 0.15s;
+}
+.ll-input::placeholder { color: var(--text-muted); }
+.ll-input:focus { border-color: var(--accent); }
+
+/* ─── Buttons ─── */
+.ll-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px; padding: 9px 16px; font-size: 14px;
+  font-family: 'IBM Plex Sans', sans-serif; font-weight: 500;
+  border: none; border-radius: 4px; cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s; outline: none;
+}
+.ll-btn:active { transform: scale(0.98); }
+.ll-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ll-btn-primary { background: var(--accent); color: #0a0a0a; }
+.ll-btn-primary:hover:not(:disabled) { opacity: 0.88; }
+.ll-btn-ghost {
+  background: transparent; color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+.ll-btn-ghost:hover:not(:disabled) { background: var(--bg-hover); color: var(--text-primary); }
+
+/* ─── Dropzone ─── */
+.dropzone {
+  border: 1.5px dashed var(--border); border-radius: 6px;
+  padding: 24px; text-align: center;
+  transition: border-color 0.15s, background 0.15s; cursor: pointer;
+}
+.dropzone.dragging { border-color: var(--accent); background: var(--accent-dim); }
+
+/* ─── Remote cursor label ─── */
+.remote-cursor-label {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 11px; padding: 1px 5px;
+  border-radius: 3px 3px 3px 0;
+  white-space: nowrap; opacity: 0.9;
+}
+
+/* ─── Tooltip ─── */
+[data-tooltip] { position: relative; }
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute; bottom: calc(100% + 6px); left: 50%;
+  transform: translateX(-50%);
+  background: #1e1e1e; color: var(--text-primary);
+  font-size: 11px; font-family: 'IBM Plex Sans', sans-serif;
+  padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border);
+  white-space: nowrap; opacity: 0; pointer-events: none;
+  transition: opacity 0.15s; z-index: 100;
+}
+[data-tooltip]:hover::after { opacity: 1; }
+
+/* ─── Spinner ─── */
+.spin { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── Animations ─── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fadeIn 0.2s ease-out; }
