@@ -65,10 +65,24 @@ const deleteRoom = asyncHandler(async (req, res) => {
   res.status(204).send();
 });
 
+const listRooms = asyncHandler(async (req, res) => {
+  const rooms = await Room.find({ 'members.userId': req.user.id });
+  const result = rooms.map((room) => ({
+    id: room._id,
+    name: room.name,
+    ownerId: room.ownerId,
+    maxUsers: room.maxUsers,
+    memberCount: room.members.length,
+    role: room.getRole(req.user.id),
+    createdAt: room.createdAt,
+  }));
+  res.status(200).json(result);
+});
+
 // POST /rooms/:id/ws-ticket — req.room already loaded by requireRoomRole middleware
 const issueWsTicket = asyncHandler(async (req, res) => {
   const ticket = await issueTicket({ userId: req.user.id, roomId: req.room._id.toString() });
   res.status(201).json({ ticket, expiresInSeconds: env.wsTicketTtlSeconds });
 });
 
-module.exports = { createRoom, getRoom, issueWsTicket };
+module.exports = { createRoom, getRoom, deleteRoom, listRooms, issueWsTicket };

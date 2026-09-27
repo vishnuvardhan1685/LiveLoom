@@ -1,16 +1,17 @@
 const http = require('http');
 const app = require('./app');
-const env = require('./utils/env');
+const env = require('./config/env');
 const { connectDB } = require('./config/db');
 const logger = require('./utils/logger');
 const { attachWsServer } = require('./ws/server');
+const redisBridge = require('./ws/redisBridge');
 
 async function start(){
     await connectDB();
     const server = http.createServer(app);
     attachWsServer(server);
     await redisBridge.subscribeToPermissionUpdates();
-    
+
     server.listen(env.port, () => {
         logger.info(`Liveloom REST server listening on port ${env.port}`);
     });

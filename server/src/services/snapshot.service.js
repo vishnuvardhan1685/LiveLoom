@@ -29,7 +29,7 @@ async function flush(roomId, doc){
 // force-flushes every N updates so a long unbroken burst of edits (a paste,
 // a fast typist) doesn't go 3s-since-first-keystroke without ever settling.
 
-function scheduleFlush(roomId, doc){
+function scheduleSnapshot(roomId, doc){
     let state = pending.get(roomId);
     if(!state){
         state = { timer: null, count: 0 };
@@ -44,8 +44,6 @@ function scheduleFlush(roomId, doc){
     state.timer = setTimeout(() => 
         flush(roomId, doc),
         env.snapshotDebounceMs)
-
-    
 }
 
 function flushNow(roomId, doc){

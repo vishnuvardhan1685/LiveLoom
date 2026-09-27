@@ -1,6 +1,6 @@
-const Room = require('../models/room');
+const Room = require('../models/Room');
 const httpError = require('../utils/httpError');
-const asyncHandler = require('express-async-handler');
+const asyncHandler = require('../utils/asyncHandler');
 
 // Fetches the room once, checks the caller's role against an allow-list, and
 // attaches the room to the request object if the role is valid

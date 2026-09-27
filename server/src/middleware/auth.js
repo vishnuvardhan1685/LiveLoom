@@ -1,4 +1,4 @@
-const { verifyJwt } = requrie('../utils/jwt');
+const { verifyJwt } = require('../utils/jwt');
 
 function requireAuth(req, res, next) {
     const header = req.headers.authorization;

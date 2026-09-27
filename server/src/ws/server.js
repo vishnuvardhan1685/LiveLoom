@@ -2,13 +2,12 @@ const { WebSocketServer } = require('ws');
 const url = require('url');
 const { handleConnection } = require('./connection');
 const logger = require('../utils/logger');
-const { http } = require('npmlog');
 
 function attachWsServer(server){
     const wss = new WebSocketServer({ noServer: true });
-    httpServer.on('upgrade', (req, socket, head) => {
+    server.on('upgrade', (req, socket, head) => {
         const { pathname } = url.parse(req.url);
-        if( pathname === '/ws' ){
+        if( pathname !== '/ws' ){
             socket.destroy();
             return;
         }

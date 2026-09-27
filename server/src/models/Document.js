@@ -9,7 +9,7 @@ const documentSchema = new mongoose.Schema(
             unique: true,
         },
         snapshot: {
-            type: ArrayBuffer,
+            type: Buffer,
             required: true,
         },
         version: {
