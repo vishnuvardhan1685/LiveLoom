@@ -1,56 +1,64 @@
 const Y = require('yjs');
 const DocumentModel = require('../models/Document');
 const logger = require('../utils/logger');
-const { clear } = require('node:console');
 
 // roomId -> { doc: Y.Doc, evictTimer: NodeJS.Timeout | null }
-const registry = new Map(); 
+const registry = new Map();
 
 // Keep a doc around briefly after the last local client disconnects, in case
 // of a fast reconnect (spec §4 disconnect handling) — cheaper than reloading
 // the snapshot from Mongo on every blip.
-
-const EVICT_IDLE_MS = 30_000; // 30s
+const EVICT_IDLE_MS = 30_000;
 
 async function getOrCreateDoc(roomId) {
-    const existing = registry.get(roomId);
-    if(existing){
-        cancelEviction(roomId);
-        return existing.doc;
-    }
-    const doc = new Y.Doc();
-    const snapshotDoc = await DocumentModel.findOne({ roomId }).lean();
-    if (snapshotDoc && snapshotDoc.snapshot) {
-        Y.applyUpdate(doc, snapshotDoc.snapshot);
-    }
-    registry.set(roomId, { doc, evictTimer: null });
-    logger.info(`Doc for room ${roomId} created and loaded from snapshot`);
-    return doc;
+  const existing = registry.get(roomId);
+  if (existing) {
+    cancelEviction(roomId);
+    return existing.doc;
+  }
+
+  const doc = new Y.Doc();
+  const snapshotDoc = await DocumentModel.findOne({ roomId }).lean();
+  if (snapshotDoc && snapshotDoc.snapshot) {
+    Y.applyUpdate(doc, snapshotDoc.snapshot);
+  }
+
+  registry.set(roomId, { doc, evictTimer: null });
+  return doc;
 }
 
 function getDoc(roomId) {
-    const entry = registry.get(roomId);
-    return entry ? entry.doc : null;
+  const entry = registry.get(roomId);
+  return entry ? entry.doc : null;
 }
 
 function cancelEviction(roomId) {
-    const entry = registry.get(roomId);
-    if(entry && entry.evictTimer){
-        clearTimeout(entry.evictTimer);
-        entry.evictTimer = null;
-    }
+  const entry = registry.get(roomId);
+  if (entry && entry.evictTimer) {
+    clearTimeout(entry.evictTimer);
+    entry.evictTimer = null;
+  }
 }
 
-// Call when the last local client disconnects, to schedule a delayed eviction of the doc.
+// Call when the last local client for a room disconnects. Safe to rely on
+// the snapshot debounce (§6, ~3s) having already flushed by the time this
+// fires (30s later) under default config — if you shorten EVICT_IDLE_MS below
+// the snapshot debounce window, add an explicit flush here first.
 function scheduleEviction(roomId) {
-    const entry = registry.get(roomId);
-    if(!entry) return;
-    cancelEviction(roomId);
-    entry.evictTimer = setTimeout(() => {
-        entry.doc.destroy();
-        registry.delete(roomId);
-        logger.info(`Doc for room ${roomId} evicted from memory after idle timeout`);
-    }, EVICT_IDLE_MS);
+  const entry = registry.get(roomId);
+  if (!entry) return;
+
+  cancelEviction(roomId);
+  entry.evictTimer = setTimeout(() => {
+    logger.info(`Evicting idle Y.Doc for room ${roomId}`);
+    // Awareness is keyed by roomId, not by doc instance — it must be dropped
+    // here too, or a reconnect after eviction would get an Awareness still
+    // bound to this destroyed doc instead of a fresh one.
+    // eslint-disable-next-line global-require
+    require('../ws/awareness').removeRoomAwareness(roomId);
+    entry.doc.destroy();
+    registry.delete(roomId);
+  }, EVICT_IDLE_MS);
 }
 
 module.exports = { getOrCreateDoc, getDoc, scheduleEviction, cancelEviction };
