@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const { signJwt } = require('../utils/jwt');
-const httpError = require('../utils/httperror');
+const httpError = require('../utils/httpError');
 const asyncHandler = require('../utils/asyncHandler');
 
 const SALT_ROUNDS = 10;

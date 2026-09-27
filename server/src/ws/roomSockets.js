@@ -26,7 +26,7 @@ function localCount(roomId){
 
 // Send a payload to every local socket in the room. Pass `excludeWs` to skip
 // the connection that triggered the update (it already has this state).
-function broadcast(roomId, payload, excludeWs){
+function broadcastLocal(roomId, payload, excludeWs){
     const set = rooms.get(roomId);
     if(!set) return;
     for(const ws of set){
@@ -36,4 +36,4 @@ function broadcast(roomId, payload, excludeWs){
     }
 }
 
-module.exports = { addSocket, removeSocket, localCount, broadcast };
+module.exports = { addSocket, removeSocket, localCount, broadcastLocal };

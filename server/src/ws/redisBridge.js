@@ -3,6 +3,7 @@ const awarenessProtocol = require('y-protocols/awareness');
 const { publisher, subscriber } = require('../config/redis');
 const docRegistry = require('../docStore/docRegistry');
 const awareness = require('./awareness');
+const docSync = require('./docSync');
 const roomState = require('../services/roomstate.service');
 const logger = require('../utils/logger');
 

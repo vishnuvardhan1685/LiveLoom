@@ -21,7 +21,7 @@ async function closeRedis(){
     await Promise.all([
         commandClient.quit(),
         publisher.quit(),
-        subsciber.quit(),
+        subscriber.quit(),
     ]);
     logger.info('Redis clients closed');
 }

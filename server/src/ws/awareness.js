@@ -16,7 +16,7 @@ function send(ws, payload){
     if(ws.readyState === ws.OPEN) ws.send(payload);
 }
 
-function getOrCreateAwareness(roomId){
+function getOrCreateAwareness(roomId, doc){
     let awareness = awarenessByRoom.get(roomId);
     if(awareness) return awareness;
     awareness = new awarenessProtocol.Awareness(doc);
