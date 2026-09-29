@@ -42,7 +42,6 @@ const inviteSchema = new mongoose.Schema(
     }
 );
 
-inviteSchema.index({ token: 1 });
 inviteSchema.methods.isExhausted = function isExhausted(){
     return this.usesSoFar >= this.maxUses || this.expiresAt.getTime() < Date.now();
 };
