@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { AuthLayout }    from '@/components/auth/AuthLayout'
 import { PasswordInput } from '@/components/auth/PasswordInput'
 import { useAuthContext } from '@/app/providers/AuthProvider'
@@ -7,6 +7,11 @@ import { useAuthContext } from '@/app/providers/AuthProvider'
 export function LoginPage() {
   const { login, isLoading, error, clearError } = useAuthContext()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  // After login, go back to returnTo (e.g. /join/:token) or dashboard
+  const params   = new URLSearchParams(location.search)
+  const returnTo = params.get('returnTo') ?? '/dashboard'
 
   const [email,    setEmail]    = useState('')
   const [password, setPassword] = useState('')
@@ -16,7 +21,7 @@ export function LoginPage() {
     clearError()
     try {
       await login(email, password)
-      navigate('/dashboard')
+      navigate(returnTo, { replace: true })
     } catch {
       // error already set in useAuth
     }

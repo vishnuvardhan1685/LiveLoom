@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { AuthLayout }    from '@/components/auth/AuthLayout'
 import { PasswordInput } from '@/components/auth/PasswordInput'
 import { useAuthContext } from '@/app/providers/AuthProvider'
@@ -7,6 +7,9 @@ import { useAuthContext } from '@/app/providers/AuthProvider'
 export function SignupPage() {
   const { signup, isLoading, error, clearError } = useAuthContext()
   const navigate = useNavigate()
+  const location = useLocation()
+  const params   = new URLSearchParams(location.search)
+  const returnTo = params.get('returnTo') ?? '/dashboard'
 
   const [name,     setName]     = useState('')
   const [email,    setEmail]    = useState('')
@@ -17,7 +20,7 @@ export function SignupPage() {
     clearError()
     try {
       await signup(email, password, name)
-      navigate('/dashboard')
+      navigate(returnTo, { replace: true })
     } catch {
       // error already set in useAuth
     }
