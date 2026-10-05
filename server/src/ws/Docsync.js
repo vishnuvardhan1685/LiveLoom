@@ -73,26 +73,30 @@ function handleSyncMessage(ws, decoder, { roomId, userId, doc }) {
   const encoder = encoding.createEncoder();
   encoding.writeVarUint(encoder, messageSync);
   const subType = decoding.readVarUint(decoder);
+  const ts = new Date().toISOString();
 
   switch (subType) {
     case syncProtocol.messageYjsSyncStep1:
       // Read-only from the doc's perspective — always allowed, even for viewers.
+      logger.info(`[SYNC ${ts}] room=${roomId} user=${userId} ← step1 received, sending step2`);
       syncProtocol.readSyncStep1(decoder, encoder, doc);
       break;
 
     case syncProtocol.messageYjsSyncStep2:
       if (!isEditAllowed(roomId, userId)) {
-        sendPermissionDenied(ws);
+        logger.warn(`SyncStep2 ignored: user ${userId} is a viewer in room ${roomId}`);
         return;
       }
+      logger.info(`[SYNC ${ts}] room=${roomId} user=${userId} ← step2 received, applying update`);
       syncProtocol.readSyncStep2(decoder, doc, ws);
       break;
 
     case syncProtocol.messageYjsUpdate:
       if (!isEditAllowed(roomId, userId)) {
-        sendPermissionDenied(ws);
+        logger.warn(`YjsUpdate ignored: user ${userId} is a viewer in room ${roomId}`);
         return;
       }
+      logger.info(`[SYNC ${ts}] room=${roomId} user=${userId} ← doc-update received`);
       syncProtocol.readUpdate(decoder, doc, ws);
       break;
 
@@ -102,6 +106,7 @@ function handleSyncMessage(ws, decoder, { roomId, userId, doc }) {
   }
 
   if (encoding.length(encoder) > 1) {
+    logger.info(`[SYNC ${new Date().toISOString()}] room=${roomId} user=${userId} → step2 reply sent`);
     send(ws, encoding.toUint8Array(encoder));
   }
 }

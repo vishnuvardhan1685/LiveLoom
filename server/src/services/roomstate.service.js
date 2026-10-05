@@ -21,15 +21,20 @@ async function loadRoleMap(roomId) {
 
 function getRole(roomId, userId) {
   const map = roleMaps.get(roomId);
-  return map ? map.get(userId) || null : null;
+  if (!map || !userId) return null;
+  return map.get(userId.toString()) || null;
 }
 
 // Called on room create/redeem/role-change so a live session reflects it
 // immediately, without waiting for the next reconnect (spec §9 edge case:
 // "role downgraded mid-session takes effect on the very next edit attempt").
 function setRole(roomId, userId, role) {
-  const map = roleMaps.get(roomId);
-  if (map) map.set(userId, role);
+  let map = roleMaps.get(roomId);
+  if (!map) {
+    map = new Map();
+    roleMaps.set(roomId, map);
+  }
+  map.set(userId.toString(), role);
 }
 
 function removeRoleMap(roomId) {
@@ -48,7 +53,13 @@ async function getActiveCount(roomId) {
 }
 
 async function incrementActiveCount(roomId) {
-  return commandClient.incr(activeCountKey(roomId));
+  const key = activeCountKey(roomId);
+  const count = await commandClient.incr(key);
+  // Set a generous TTL (24 hours) so a server crash doesn't leave a stale
+  // count that permanently blocks the room. The count is decremented on clean
+  // disconnects; the TTL is only a safety net for hard crashes.
+  await commandClient.expire(key, 86400);
+  return count;
 }
 
 async function decrementActiveCount(roomId) {

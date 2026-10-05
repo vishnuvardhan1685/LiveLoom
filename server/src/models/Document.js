@@ -10,14 +10,13 @@ const documentSchema = new mongoose.Schema(
         },
         snapshot: {
             type: Buffer,
-            required: true,
         },
         version: {
             type: Number,
             default: 0,
         }
     },
-    { timestamps: { createdAt: true, updatedAt: false } },
+    { timestamps: true },
 );
 
 module.exports = mongoose.model('Document', documentSchema);

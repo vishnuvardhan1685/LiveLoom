@@ -2,7 +2,6 @@ const Room = require('../models/Room');
 const httpError = require('../utils/httpError');
 const asyncHandler = require('../utils/asyncHandler');
 const { issueTicket } = require('../services/ticket.service');
-const env = require('../config/env');
 
 const createRoom = asyncHandler(async (req, res) => {
   const { name, maxUsers } = req.body;
@@ -28,7 +27,7 @@ const createRoom = asyncHandler(async (req, res) => {
 });
 
 const getRoom = asyncHandler(async (req, res) => {
-  const room = await Room.findById(req.params.id);
+  const room = await Room.findById(req.params.id).populate('members.userId', 'name email');
   if (!room) {
     throw httpError(404, 'Room not found');
   }
@@ -41,12 +40,20 @@ const getRoom = asyncHandler(async (req, res) => {
     throw httpError(403, 'Not a member of this room — redeem an invite first');
   }
 
+  const members = (room.members || []).map((m) => ({
+    userId: m.userId?._id?.toString() || m.userId?.toString(),
+    name: m.userId?.name || m.userId?.email || 'Collaborator',
+    email: m.userId?.email || '',
+    role: m.role,
+  }));
+
   res.status(200).json({
     id: room._id,
     name: room.name,
     ownerId: room.ownerId,
     maxUsers: room.maxUsers,
     memberCount: room.members.length,
+    members,
     role,
   });
 });
@@ -81,8 +88,8 @@ const listRooms = asyncHandler(async (req, res) => {
 
 // POST /rooms/:id/ws-ticket — req.room already loaded by requireRoomRole middleware
 const issueWsTicket = asyncHandler(async (req, res) => {
-  const ticket = await issueTicket({ userId: req.user.id, roomId: req.room._id.toString() });
-  res.status(201).json({ ticket, expiresInSeconds: env.wsTicketTtlSeconds });
+  const ticket = issueTicket({ userId: req.user.id, roomId: req.room._id.toString() });
+  res.status(201).json({ ticket, expiresInSeconds: 600 });
 });
 
 module.exports = { createRoom, getRoom, deleteRoom, listRooms, issueWsTicket };

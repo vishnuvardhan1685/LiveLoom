@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { authApi } from '@/lib/api'
 
 // ─── Storage keys ─────────────────────────────────────────────────────────────
-// Server returns { token, user: { user: { id, email, name } } }
+// Server returns { token, user: { id, email, name } }
 // We store the token as 'll_token' and the user object as 'll_user'
 const TOKEN_KEY = 'll_token'
 const USER_KEY  = 'll_user'
@@ -38,8 +38,8 @@ export function useAuth() {
     setError(null)
     try {
       const { data } = await authApi.login(email, password)
-      // Server response: { token, user: { user: { id, email, name } } }
-      persist(data.token, data.user.user)
+      // Server response: { token, user: { id, email, name } }
+      persist(data.token, data.user)
     } catch (err) {
       const msg = err.response?.data?.error ?? err.response?.data?.message ?? 'Login failed.'
       setError(msg)
@@ -55,9 +55,30 @@ export function useAuth() {
     setError(null)
     try {
       const { data } = await authApi.signup(email, password, name)
-      persist(data.token, data.user.user)
+      persist(data.token, data.user)
     } catch (err) {
       const msg = err.response?.data?.error ?? err.response?.data?.message ?? 'Signup failed.'
+      setError(msg)
+      throw err
+    } finally {
+      setIsLoading(false)
+    }
+  }, [persist])
+
+  const updateProfile = useCallback(async (dataToUpdate) => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const { data } = await authApi.updateMe(dataToUpdate)
+      if (data.token && data.user) {
+        persist(data.token, data.user)
+      } else if (data.user) {
+        localStorage.setItem(USER_KEY, JSON.stringify(data.user))
+        setUser(data.user)
+      }
+      return data.user
+    } catch (err) {
+      const msg = err.response?.data?.error ?? err.response?.data?.message ?? 'Failed to update profile.'
       setError(msg)
       throw err
     } finally {
@@ -73,5 +94,5 @@ export function useAuth() {
 
   const clearError = useCallback(() => setError(null), [])
 
-  return { user, isLoading, error, isAuthenticated, login, signup, logout, clearError }
+  return { user, isLoading, error, isAuthenticated, login, signup, updateProfile, logout, clearError }
 }

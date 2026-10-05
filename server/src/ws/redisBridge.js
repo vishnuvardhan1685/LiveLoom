@@ -20,43 +20,57 @@ let globalListenerAttached = false;
 function ensureGlobalListener() {
   if (globalListenerAttached) return;
   globalListenerAttached = true;
- 
+
   // messageBuffer (not message) preserves the payload as raw bytes — Yjs
   // updates are binary and would be corrupted by ioredis's default
   // string decoding.
   subscriber.on('messageBuffer', (channelBuf, messageBuf) => {
     const channel = channelBuf.toString();
- 
+
     if (channel === PERMISSION_CHANNEL) {
       handlePermissionUpdate(messageBuf);
       return;
     }
- 
+
     const docMatch = channel.match(/^room:(.+):doc$/);
     if (docMatch) {
       applyRemoteDocUpdate(docMatch[1], messageBuf);
       return;
     }
- 
+
     const awarenessMatch = channel.match(/^room:(.+):awareness$/);
     if (awarenessMatch) {
       applyRemoteAwarenessUpdate(awarenessMatch[1], messageBuf);
     }
   });
 }
- 
+
 function applyRemoteDocUpdate(roomId, messageBuf) {
   const doc = docRegistry.getDoc(roomId);
   if (!doc) return; // not active on this instance — refcounting means this shouldn't happen
-  Y.applyUpdate(doc, new Uint8Array(messageBuf), docSync.REMOTE_ORIGIN);
+  try {
+    const uint8 = new Uint8Array(messageBuf);
+    if (uint8.byteLength > 0) {
+      Y.applyUpdate(doc, uint8, docSync.REMOTE_ORIGIN);
+    }
+  } catch (err) {
+    logger.error(`Failed to apply remote doc update for room ${roomId}`, err);
+  }
 }
- 
+
 function applyRemoteAwarenessUpdate(roomId, messageBuf) {
   const instance = awareness.getAwareness(roomId);
   if (!instance) return;
-  awarenessProtocol.applyAwarenessUpdate(instance, new Uint8Array(messageBuf), docSync.REMOTE_ORIGIN);
+  try {
+    const uint8 = new Uint8Array(messageBuf);
+    if (uint8.byteLength > 0) {
+      awarenessProtocol.applyAwarenessUpdate(instance, uint8, docSync.REMOTE_ORIGIN);
+    }
+  } catch (err) {
+    logger.error(`Failed to apply remote awareness update for room ${roomId}`, err);
+  }
 }
- 
+
 function handlePermissionUpdate(messageBuf) {
   try {
     const { roomId, userId, role } = JSON.parse(messageBuf.toString());
@@ -65,39 +79,39 @@ function handlePermissionUpdate(messageBuf) {
     logger.error('Failed to parse permission:update message', err);
   }
 }
- 
+
 async function ensureSubscribed(roomId) {
   ensureGlobalListener();
   if (subscribedRooms.has(roomId)) return;
   subscribedRooms.add(roomId);
   await subscriber.subscribe(docChannel(roomId), awarenessChannel(roomId));
 }
- 
-// Call once the last local client for a room disconnects.
+
+// Call once the last local client disconnects.
 async function maybeUnsubscribe(roomId) {
   if (!subscribedRooms.has(roomId)) return;
   subscribedRooms.delete(roomId);
   await subscriber.unsubscribe(docChannel(roomId), awarenessChannel(roomId));
 }
- 
+
 // Global, room-independent — subscribed once at server startup.
 async function subscribeToPermissionUpdates() {
   ensureGlobalListener();
   await subscriber.subscribe(PERMISSION_CHANNEL);
 }
- 
+
 async function publishDocUpdate(roomId, update) {
   await publisher.publish(docChannel(roomId), Buffer.from(update));
 }
- 
+
 async function publishAwarenessUpdate(roomId, update) {
   await publisher.publish(awarenessChannel(roomId), Buffer.from(update));
 }
- 
+
 async function publishPermissionUpdate(roomId, userId, role) {
   await publisher.publish(PERMISSION_CHANNEL, JSON.stringify({ roomId, userId, role }));
 }
- 
+
 module.exports = {
   ensureSubscribed,
   maybeUnsubscribe,

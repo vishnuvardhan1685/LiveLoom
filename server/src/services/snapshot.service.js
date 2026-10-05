@@ -2,8 +2,6 @@ const Y = require('yjs');
 const DocumentModel = require('../models/Document');
 const env = require('../config/env');
 const logger = require('../utils/logger');
-const { clear } = require('node:console');
-
 // roomId -> { timer, count }
 const pending = new Map();
 
@@ -38,7 +36,9 @@ function scheduleSnapshot(roomId, doc){
     state.count += 1;
     if(state.timer) clearTimeout(state.timer);
     if(state.count >= env.snapshotMaxUpdatesBeforeFlush){
-        flush(roomId, doc); 
+        flush(roomId, doc).catch((err) =>
+            logger.error(`Forced snapshot flush failed for room ${roomId}`, err)
+        );
         return;
     }
     state.timer = setTimeout(() => 

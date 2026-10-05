@@ -36,14 +36,18 @@ apiClient.interceptors.response.use(
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 // POST /auth/signup  body: { email, password, name }
-//   response: { token, user: { user: { id, email, name } } }
+//   response: { token, user: { id, email, name } }
 // POST /auth/login   body: { email, password }
-//   response: { token, user: { user: { id, email, name } } }
+//   response: { token, user: { id, email, name } }
 export const authApi = {
   signup: (email, password, name) =>
     apiClient.post('/auth/signup', { email, password, name }),
   login: (email, password) =>
     apiClient.post('/auth/login', { email, password }),
+  getMe: () =>
+    apiClient.get('/auth/me'),
+  updateMe: (data) =>
+    apiClient.put('/auth/me', data),
 }
 
 // ─── Rooms ────────────────────────────────────────────────────────────────────
@@ -57,6 +61,7 @@ export const authApi = {
 // POST /rooms/:id/invites body: { role, expiresAt, maxUses }
 //   response: { token, link, role, expiresAt, maxUses }
 export const roomsApi = {
+  list: () => apiClient.get('/rooms'),
   create: (name, maxUsers) =>
     apiClient.post('/rooms', { name, ...(maxUsers && { maxUsers }) }),
   get: (id) => apiClient.get(`/rooms/${id}`),

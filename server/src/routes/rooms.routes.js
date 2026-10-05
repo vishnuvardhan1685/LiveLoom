@@ -15,6 +15,8 @@ router.post('/:id/invites', requireAuth, requireRoomRole(['owner', 'editor']), c
 
 // Any member (owner, editor, viewer) can request a ticket to join the live session
 router.post('/:id/tickets', requireAuth, requireRoomRole(Room.ROLES), issueWsTicket);
+// Alias for spec §3 path (POST /rooms/:id/ws-ticket) — smoke test + external clients use this
+router.post('/:id/ws-ticket', requireAuth, requireRoomRole(Room.ROLES), issueWsTicket);
 // Only the owner can delete the room
 router.delete('/:id', requireAuth, requireRoomRole(['owner']), deleteRoom);
 

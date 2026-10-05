@@ -18,9 +18,27 @@ async function getOrCreateDoc(roomId) {
   }
 
   const doc = new Y.Doc();
-  const snapshotDoc = await DocumentModel.findOne({ roomId }).lean();
-  if (snapshotDoc && snapshotDoc.snapshot) {
-    Y.applyUpdate(doc, snapshotDoc.snapshot);
+  try {
+    const snapshotDoc = await DocumentModel.findOne({ roomId }).lean();
+    if (snapshotDoc && snapshotDoc.snapshot) {
+      const snapBuf = snapshotDoc.snapshot;
+      const uint8 = new Uint8Array(
+        Buffer.isBuffer(snapBuf)
+          ? snapBuf
+          : snapBuf.buffer
+          ? snapBuf.buffer
+          : snapBuf
+      );
+      if (uint8.byteLength > 0) {
+        Y.applyUpdate(doc, uint8);
+      }
+    }
+  } catch (err) {
+    logger.error(`Corrupt Yjs snapshot in database for room ${roomId}. Resetting snapshot to unblock connections.`, err);
+    // Unset corrupt snapshot in MongoDB so room automatically recovers
+    DocumentModel.updateOne({ roomId }, { $unset: { snapshot: 1 } }).catch((dbErr) => {
+      logger.error(`Failed to unset corrupt snapshot for room ${roomId}`, dbErr);
+    });
   }
 
   registry.set(roomId, { doc, evictTimer: null });

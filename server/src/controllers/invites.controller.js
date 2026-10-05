@@ -45,9 +45,36 @@ const createInvite = asyncHandler(async (req, res) => {
 const redeemInvite = asyncHandler(async (req, res) => {
   const { token } = req.params;
 
+  // First, look up the invite document (without consuming a use yet).
+  const existing = await Invite.findOne({ token });
+
+  if (!existing) {
+    throw httpError(404, 'Invite not found');
+  }
+
+  // Check expiry and exhaustion before doing anything else.
+  if (existing.expiresAt < new Date()) {
+    throw httpError(410, 'Invite expired or fully used');
+  }
+
+  // Load the room so we can check existing membership.
+  const room = await Room.findById(existing.roomId);
+  if (!room) {
+    throw httpError(404, 'Room no longer exists');
+  }
+
+  // If this user is already a member, return their current role without
+  // consuming another use of the invite (idempotent re-redemption).
+  const existingRole = room.getRole(req.user.id);
+  if (existingRole) {
+    return res.status(200).json({ roomId: room._id, role: existingRole });
+  }
+
+  // New member — atomically consume one use of the invite.
+  // The $expr guard ensures two simultaneous final-use redemptions can't both win.
   const invite = await Invite.findOneAndUpdate(
     {
-      token,
+      _id: existing._id,
       expiresAt: { $gt: new Date() },
       $expr: { $lt: ['$usesSoFar', '$maxUses'] },
     },
@@ -56,35 +83,23 @@ const redeemInvite = asyncHandler(async (req, res) => {
   );
 
   if (!invite) {
-    const exists = await Invite.exists({ token });
-    if (!exists) {
-      throw httpError(404, 'Invite not found');
-    }
+    // Another request raced us to the last slot — it's now exhausted.
     throw httpError(410, 'Invite expired or fully used');
   }
 
-  const room = await Room.findById(invite.roomId);
-  if (!room) {
-    throw httpError(404, 'Room no longer exists');
-  }
+  // Admit the user.
+  room.members.push({ userId: req.user.id, role: invite.role });
+  await room.save();
+  const role = invite.role;
 
-  let role = room.getRole(req.user.id);
-  if (!role) {
-    room.members.push({ userId: req.user.id, role: invite.role });
-    await room.save();
-    role = invite.role;
-
-    // Keep this instance's in-memory role map current, and tell every other
-    // instance too — a viewer who was just granted access shouldn't have to
-    // wait for a reconnect to be recognized by a WS server they land on.
-    roomState.setRole(room._id.toString(), req.user.id, role);
-    redisBridge.publishPermissionUpdate(room._id.toString(), req.user.id, role).catch(() => {
-      // Best-effort — other instances will still pick up the new role the
-      // next time they lazily load this room's membership from Mongo.
-    });
-  }
-  // Already a member (e.g. re-clicking an old invite link) — keep their
-  // existing role rather than silently downgrading/upgrading it.
+  // Keep this instance's in-memory role map current, and tell every other
+  // instance too — a viewer who was just granted access shouldn't have to
+  // wait for a reconnect to be recognized by a WS server they land on.
+  roomState.setRole(room._id.toString(), req.user.id, role);
+  redisBridge.publishPermissionUpdate(room._id.toString(), req.user.id, role).catch(() => {
+    // Best-effort — other instances will still pick up the new role the
+    // next time they lazily load this room's membership from Mongo.
+  });
 
   res.status(200).json({ roomId: room._id, role });
 });

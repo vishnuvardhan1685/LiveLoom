@@ -6,10 +6,14 @@ const roomsRoutes = require('./routes/rooms.routes');
 const invitesRoutes = require('./routes/invites.routes');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 
+const { createRateLimiter, sanitizeInputs } = require('./middleware/security');
+
 const app = express();
 
-// CORS has to be registered before routes (and before express.json()) so
-// preflight OPTIONS requests are answered without ever reaching them.
+// Security: Cap body payload size to 5MB to prevent DoS memory overflow attacks
+app.use(express.json({ limit: '5mb' }));
+
+// CORS preflight and headers
 app.use(
   cors({
     origin: env.corsOrigins.includes('*') ? true : env.corsOrigins,
@@ -18,7 +22,11 @@ app.use(
   }),
 );
 
-app.use(express.json());
+// Sanitize incoming JSON payload objects against NoSQL injection
+app.use(sanitizeInputs);
+
+// Global IP Rate Limiter (60 requests per minute)
+app.use(createRateLimiter({ windowMs: 60_000, max: 120, message: 'Rate limit exceeded' }));
 
 app.use('/auth', authRoutes);
 app.use('/rooms', roomsRoutes);
