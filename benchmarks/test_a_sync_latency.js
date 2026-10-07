@@ -40,7 +40,7 @@ async function runSyncLatencyTestForRoomSize(roomSize) {
     })
   })
 
-  const DURATION_MS = 5000
+  const DURATION_MS = process.env.QUICK_MODE ? 2000 : 5000
   const INTERVAL_MS = 200
   const startTime = performance.now()
 
@@ -67,7 +67,7 @@ async function runSyncLatencyTestForRoomSize(roomSize) {
 
 async function runTestA() {
   console.log('\n--- TEST A: Sync Latency (2, 10, 25, 50 clients) ---')
-  const roomSizes = [2, 10, 25, 50]
+  const roomSizes = process.env.QUICK_MODE ? [2, 10] : [2, 10, 25, 50]
   const results = {}
 
   for (const size of roomSizes) {

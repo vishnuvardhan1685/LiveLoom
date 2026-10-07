@@ -7,7 +7,7 @@ async function runConvergenceTest() {
   const inviteToken = await createRoomInvite(owner.token, room.id, 2000)
 
   const NUM_CLIENTS = 10
-  const TOTAL_OPS = 5000
+  const TOTAL_OPS = process.env.QUICK_MODE ? 1000 : 5000
   const opsPerClient = Math.floor(TOTAL_OPS / NUM_CLIENTS)
 
   const clients = []

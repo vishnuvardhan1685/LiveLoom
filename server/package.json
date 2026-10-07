@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
+    "test": "JWT_SECRET=test_secret WS_TICKET_SECRET=test_secret CLIENT_ORIGINS=http://localhost:3000 REDIS_URL= node --test tests/unit.test.js",
     "benchmark:baseline": "node ../benchmarks/run_all.js BASELINE",
     "benchmark:after": "node ../benchmarks/run_all.js AFTER"
   },

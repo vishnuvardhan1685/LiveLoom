@@ -137,3 +137,46 @@ node scripts/prod_smoke.js https://liveloom-backend.onrender.com
 ## 6. Known Limitations
 
 - **Awareness Multi-Node Scope**: `awareness (presence/cursors) does not cross server instances; production runs single-instance.`
+
+---
+
+## 7. GitHub Actions CI/CD Pipeline & Secrets
+
+The repository includes automated GitHub Actions workflows:
+- **CI (`.github/workflows/ci.yml`)**: Triggered on every `push` and `pull_request` to `main`. Performs linting, unit tests, client bundle size budget check (<500 KB gzipped), Docker Buildx cached compilation, containerized quick benchmark tests (Tests A, C, K), dependency audit, and secret scanning via Gitleaks.
+- **CD (`.github/workflows/deploy.yml`)**: Triggered on push to `main` after CI passes. Builds and pushes the server container image to **GitHub Container Registry (`ghcr.io`)**, triggers Render deployment via Deploy Hook, polls `/readyz` health check (up to 3 mins), runs post-deploy live smoke tests (`prod_smoke.js`), and verifies frontend WebSocket URL targets.
+
+### GitHub Actions Secrets & Variables
+
+Configure the following secrets in your repository (**Settings** > **Secrets and variables** > **Actions**):
+
+| Secret Name | Required | Description |
+| :--- | :---: | :--- |
+| `RENDER_DEPLOY_HOOK_URL` | Yes | Unique Render Web Service Deploy Hook URL (found under Render Service Settings) |
+| `RENDER_BACKEND_URL` | Yes | Public URL of deployed backend service (e.g. `https://liveloom-backend.onrender.com`) |
+| `GITHUB_TOKEN` | Auto | Built-in GitHub Actions token with package write permissions for GHCR (`ghcr.io`) |
+
+---
+
+## 8. Production Rollback Procedures
+
+If a deployment fails live post-deploy smoke checks or introduces a critical bug:
+
+### A. Backend Rollback (Render Web Service)
+1. Log in to [Render Dashboard](https://dashboard.render.com).
+2. Select your `liveloom-backend` service.
+3. Click **Deploys** in the left navigation sidebar.
+4. Find the last known successful deploy entry.
+5. Click **Rollback** next to that build to instantly redeploy the previous container build.
+
+### B. Frontend Rollback (Vercel)
+1. Log in to [Vercel Dashboard](https://vercel.com).
+2. Select your `liveloom` project.
+3. Go to the **Deployments** tab.
+4. Click the `...` options menu next to the previous stable deployment.
+5. Click **Promote to Production** to instantly switch traffic back to the stable build.
+
+### C. Docker Image Rollback via GHCR
+- Every `main` push tags a permanent image in GHCR: `ghcr.io/<owner>/liveloom/server:<git-sha>`.
+- In emergencies, update the Render service image tag or environment variable to point to a specific stable Git commit SHA tag.
+

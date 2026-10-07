@@ -7,6 +7,8 @@
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:reset": "docker compose down -v",
-    "smoke": "node scripts/smoke_test.js"
+    "smoke": "node scripts/smoke_test.js",
+    "test": "cd server && JWT_SECRET=test_secret WS_TICKET_SECRET=test_secret CLIENT_ORIGINS=http://localhost:3000 REDIS_URL= node --test tests/unit.test.js",
+    "check:bundle": "node scripts/check_bundle_budget.js"
   }
 }
