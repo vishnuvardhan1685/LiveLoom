@@ -95,7 +95,7 @@ openssl rand -hex 32
 1. **Deploy Repository**:
    - Connect the repository to [Vercel](https://vercel.com).
    - Set **Framework Preset** to `Vite`.
-   - Set **Root Directory** to `client`.
+   - Set **Root Directory** to `client` (or keep `./` with root `vercel.json`).
 
 2. **Environment Variables**:
    In Vercel **Project Settings** > **Environment Variables**, add:
@@ -105,7 +105,21 @@ openssl rand -hex 32
 | `VITE_API_URL` | `https://liveloom-backend.onrender.com` | Render Backend HTTP Base URL |
 | `VITE_WS_URL` | `wss://liveloom-backend.onrender.com` | Render Backend WebSocket Base URL |
 
----
+> [!WARNING]
+> **Do NOT use Vercel rewrites for `/ws`**: Vercel serverless proxy edge functions cannot upgrade or maintain persistent WebSocket connections. `VITE_WS_URL` must connect directly to the backend (`wss://liveloom-backend.onrender.com/ws`).
+
+3. **SPA Routing & Security Configuration (`vercel.json`)**:
+   The repository includes [`client/vercel.json`](../client/vercel.json) providing:
+   - **SPA Route Rewrites**: Maps `/room/:id`, `/invite/:token`, `/login`, etc. to `/index.html`.
+   - **Asset Caching**: `Cache-Control: public, max-age=31536000, immutable` for `/assets/*`.
+   - **Index Revalidation**: `Cache-Control: no-cache, no-store, must-revalidate` for `index.html`.
+   - **Security Headers**: Includes `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY`, and a CSP `connect-src` allowing backend `https:` and `wss:` connections.
+
+4. **Cross-Origin Authentication Model**:
+   - LiveLoom uses **JWT Bearer Tokens** (`Authorization: Bearer <token>`) stored in `localStorage`.
+   - Client HTTP requests dynamically attach the token on cross-origin requests (`client/src/lib/api.js`).
+   - Server CORS explicitly allows `Authorization` headers and dynamic origin matching for Vercel production and preview domains (`https://*.vercel.app`).
+   - WebSockets authenticate via HMAC tickets passed as URL query parameters (`wss://.../ws?ticket=<ticket>&roomId=<roomId>`), eliminating cross-origin cookie restrictions.
 
 ## 4. Cold-Start Handling & Keepalive Behavior
 

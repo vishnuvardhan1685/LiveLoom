@@ -3,8 +3,11 @@ import axios from 'axios'
 // ─── Axios instance ───────────────────────────────────────────────────────────
 // Routes are proxied in dev by vite.config.js to http://localhost:4000
 // Server mounts at /auth and /rooms (NO /api prefix)
+const rawApiUrl = import.meta.env.VITE_API_URL || ''
+const cleanApiUrl = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl
+
 export const apiClient = axios.create({
-  baseURL: '/',
+  baseURL: cleanApiUrl || '/',
   headers: { 'Content-Type': 'application/json' },
   timeout: 10_000,
 })

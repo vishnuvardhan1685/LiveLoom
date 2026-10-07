@@ -13,9 +13,7 @@
 
 export const WS_URL = import.meta.env.VITE_WS_URL ?? 'ws://localhost:4000'
 
-// ticket/roomId must go through the `params` option, not be baked into the
-// serverUrl string — y-websocket appends its own path/query after serverUrl,
-// which corrupted these when they were inlined here before.
 export function buildWsBase() {
-  return `${WS_URL}/ws`
+  const base = (import.meta.env.VITE_WS_URL || 'ws://localhost:4000').replace(/\/+$/, '')
+  return base.endsWith('/ws') ? base : `${base}/ws`
 }
