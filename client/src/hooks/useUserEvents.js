@@ -30,7 +30,9 @@ export function useUserEvents({ onRoomDeleted, onRoleChanged, onRoleChangedAck }
     if (!token) return
 
     // EventSource doesn't support Authorization headers; pass token as query param.
-    const url = `/rooms/events?token=${encodeURIComponent(token)}`
+    const rawApiUrl = import.meta.env.VITE_API_URL || ''
+    const cleanApiUrl = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl
+    const url = `${cleanApiUrl}/rooms/events?token=${encodeURIComponent(token)}`
     const es  = new EventSource(url)
 
     es.onmessage = (e) => {
