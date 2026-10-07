@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { invitesApi } from '@/lib/api'
 import { useAuthContext } from '@/app/providers/AuthProvider'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+import { toast } from '@/components/Toast'
 
 /**
  * GET /invites/:token → { roomId, role }
@@ -9,6 +11,7 @@ import { useAuthContext } from '@/app/providers/AuthProvider'
  * so after auth they land back here and the redemption runs.
  */
 export function JoinPage() {
+  useDocumentTitle('Join Room')
   const { token } = useParams()
   const navigate = useNavigate()
   const { isAuthenticated } = useAuthContext()

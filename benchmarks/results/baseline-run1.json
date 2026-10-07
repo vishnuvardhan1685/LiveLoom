@@ -1,0 +1,359 @@
+{
+  "runIndex": 1,
+  "label": "BASELINE",
+  "timestamp": "2026-10-06T18:30:43.450Z",
+  "sysInfo": {
+    "os": "Darwin 25.2.0 (arm64)",
+    "cpuModel": "Apple M4",
+    "cpuCores": 10,
+    "ramGB": "16.00",
+    "nodeVersion": "v26.0.0"
+  },
+  "tests": {
+    "testA": {
+      "2": {
+        "count": 24,
+        "min": 0.67,
+        "max": 2.46,
+        "median": 1.66,
+        "p50": 1.66,
+        "p95": 2.41,
+        "p99": 2.46,
+        "mean": 1.65,
+        "spread": 1.8
+      },
+      "10": {
+        "count": 24,
+        "min": 0.47,
+        "max": 2.12,
+        "median": 1.35,
+        "p50": 1.35,
+        "p95": 1.9,
+        "p99": 2.12,
+        "mean": 1.39,
+        "spread": 1.65
+      },
+      "25": {
+        "count": 24,
+        "min": 0.44,
+        "max": 2.36,
+        "median": 1.28,
+        "p50": 1.28,
+        "p95": 1.93,
+        "p99": 2.36,
+        "mean": 1.2,
+        "spread": 1.92
+      },
+      "50": {
+        "count": 24,
+        "min": 0.44,
+        "max": 2.07,
+        "median": 1.18,
+        "p50": 1.18,
+        "p95": 2.01,
+        "p99": 2.07,
+        "mean": 1.18,
+        "spread": 1.63
+      }
+    },
+    "testB": [
+      {
+        "targetConns": 100,
+        "targetRooms": 20,
+        "activeConns": 100,
+        "errors": 0,
+        "connectTimeMs": 7431.62,
+        "heapMB": 28.01,
+        "heapDeltaMB": 0,
+        "rssMB": 114.13,
+        "latencyP50": 1.22,
+        "latencyP95": 2.75,
+        "eventLoopLagP95": 1.2,
+        "exceeds200ms": false
+      },
+      {
+        "targetConns": 500,
+        "targetRooms": 100,
+        "activeConns": 500,
+        "errors": 0,
+        "connectTimeMs": 38797.62,
+        "heapMB": 30.75,
+        "heapDeltaMB": 2.88,
+        "rssMB": 154.69,
+        "latencyP50": 1.05,
+        "latencyP95": 1.56,
+        "eventLoopLagP95": 1.26,
+        "exceeds200ms": false
+      },
+      {
+        "targetConns": 1000,
+        "targetRooms": 200,
+        "activeConns": 1000,
+        "errors": 0,
+        "connectTimeMs": 78266.01,
+        "heapMB": 33.41,
+        "heapDeltaMB": 2.73,
+        "rssMB": 160.53,
+        "latencyP50": 1.13,
+        "latencyP95": 1.68,
+        "eventLoopLagP95": 1.31,
+        "exceeds200ms": false
+      }
+    ],
+    "testC": {
+      "totalOps": 5000,
+      "numClients": 10,
+      "finalTextLength": 1060,
+      "passed": true
+    },
+    "testD": {
+      "reconvergeTimeMs": 772.45,
+      "isByteIdentical": true,
+      "noLostEdits": true,
+      "finalTextLength": 54
+    },
+    "testE": {
+      "sizeResults": [
+        {
+          "targetSizeKB": 10,
+          "syncTimeMs": 230.12,
+          "minMs": 229.17,
+          "maxMs": 244.06,
+          "bytesTransferred": 10277,
+          "kbTransferred": 10.04
+        },
+        {
+          "targetSizeKB": 100,
+          "syncTimeMs": 231.17,
+          "minMs": 225.78,
+          "maxMs": 232.3,
+          "bytesTransferred": 102440,
+          "kbTransferred": 100.04
+        },
+        {
+          "targetSizeKB": 1000,
+          "syncTimeMs": 170.54,
+          "minMs": 166.47,
+          "maxMs": 172.59,
+          "bytesTransferred": 304168,
+          "kbTransferred": 297.04
+        },
+        {
+          "targetSizeKB": 5000,
+          "syncTimeMs": 253.26,
+          "minMs": 248.62,
+          "maxMs": 256.65,
+          "bytesTransferred": 925477,
+          "kbTransferred": 903.79
+        }
+      ],
+      "fileResults": [
+        {
+          "fileCount": 1,
+          "syncTimeMs": 232.16,
+          "minMs": 231.08,
+          "maxMs": 237.32
+        },
+        {
+          "fileCount": 20,
+          "syncTimeMs": 228.43,
+          "minMs": 224.72,
+          "maxMs": 232.61
+        },
+        {
+          "fileCount": 100,
+          "syncTimeMs": 233.94,
+          "minMs": 226.86,
+          "maxMs": 268.06
+        }
+      ]
+    },
+    "testF": {
+      "crossLatencyP50": 60.97,
+      "crossLatencyP95": 62.79,
+      "crossLatencyP99": 67.66,
+      "awarenessRelayed": false,
+      "sampleCount": 200
+    },
+    "testG": {
+      "restoreTimeMs": 428.35,
+      "charsSent": 790,
+      "charsSaved": 0,
+      "charsLost": 790,
+      "dataLossUnflushedSaved": false,
+      "opsCount": 10000,
+      "sizeNoGCBytes": 84263,
+      "sizeGCBytes": 78057,
+      "compactionRatio": 7.37
+    },
+    "testH": {
+      "numRoomsTested": 2000,
+      "initialHeapMB": 29.02,
+      "activeHeapMB": 34.04,
+      "idleHeapMB": 31.62,
+      "memPerActiveRoomKB": 2.57,
+      "memPerIdleRoomKB": 1.33,
+      "evictionVerified": true
+    },
+    "testI": {
+      "unthrottled": {
+        "throttled": false,
+        "usersCount": 25,
+        "durationSec": 4,
+        "totalMessages": 289,
+        "totalBytes": 53279,
+        "msgsPerSec": 72.25,
+        "bytesPerSec": 13319.75,
+        "kbPerSec": 13.01
+      },
+      "throttled": {
+        "throttled": true,
+        "usersCount": 25,
+        "durationSec": 4,
+        "totalMessages": 461,
+        "totalBytes": 83274,
+        "msgsPerSec": 115.25,
+        "bytesPerSec": 20818.5,
+        "kbPerSec": 20.33
+      },
+      "reductionPercent": -56.3
+    },
+    "testJ": {
+      "POST /auth/login": {
+        "10": {
+          "reqPerSec": 13,
+          "p50": 108,
+          "p90": 118,
+          "p97_5": 3273,
+          "p99": 3284,
+          "errors": 0,
+          "timeouts": 0
+        },
+        "50": {
+          "reqPerSec": 87,
+          "p50": 358,
+          "p90": 362,
+          "p97_5": 379,
+          "p99": 421,
+          "errors": 0,
+          "timeouts": 0
+        },
+        "200": {
+          "reqPerSec": 82,
+          "p50": 2146,
+          "p90": 2287,
+          "p97_5": 2465,
+          "p99": 2513,
+          "errors": 0,
+          "timeouts": 0
+        }
+      },
+      "GET /rooms": {
+        "10": {
+          "reqPerSec": 94.75,
+          "p50": 62,
+          "p90": 393,
+          "p97_5": 553,
+          "p99": 553,
+          "errors": 0,
+          "timeouts": 0
+        },
+        "50": {
+          "reqPerSec": 88,
+          "p50": 77,
+          "p90": 907,
+          "p97_5": 927,
+          "p99": 1544,
+          "errors": 0,
+          "timeouts": 0
+        },
+        "200": {
+          "reqPerSec": 79,
+          "p50": 1963,
+          "p90": 2783,
+          "p97_5": 2876,
+          "p99": 2889,
+          "errors": 0,
+          "timeouts": 0
+        }
+      },
+      "POST /rooms (create room)": {
+        "10": {
+          "reqPerSec": 47,
+          "p50": 61,
+          "p90": 700,
+          "p97_5": 1803,
+          "p99": 1810,
+          "errors": 0,
+          "timeouts": 0
+        },
+        "50": {
+          "reqPerSec": 111.75,
+          "p50": 121,
+          "p90": 871,
+          "p97_5": 883,
+          "p99": 1085,
+          "errors": 0,
+          "timeouts": 0
+        },
+        "200": {
+          "reqPerSec": 99,
+          "p50": 1765,
+          "p90": 1994,
+          "p97_5": 2510,
+          "p99": 2520,
+          "errors": 0,
+          "timeouts": 0
+        }
+      },
+      "POST /rooms/:id/ws-ticket": {
+        "10": {
+          "reqPerSec": 57.75,
+          "p50": 59,
+          "p90": 356,
+          "p97_5": 1662,
+          "p99": 1663,
+          "errors": 0,
+          "timeouts": 0
+        },
+        "50": {
+          "reqPerSec": 118,
+          "p50": 72,
+          "p90": 945,
+          "p97_5": 1162,
+          "p99": 1214,
+          "errors": 0,
+          "timeouts": 0
+        },
+        "200": {
+          "reqPerSec": 109.25,
+          "p50": 1578,
+          "p90": 1900,
+          "p97_5": 2155,
+          "p99": 2442,
+          "errors": 0,
+          "timeouts": 0
+        }
+      }
+    },
+    "testK": {
+      "viewerEditsRejected": true,
+      "oversizedPayloadRejected": true,
+      "messageFloodRateLimited": true,
+      "otherClientsUnaffected": true
+    },
+    "testL": {
+      "initialDashboardJsKB": 339.44,
+      "editorChunkKB": 41.8,
+      "monacoChunkKB": 2131.29,
+      "totalJsKB": 2512.53,
+      "dashboardLoadTime4GMs": 1619,
+      "lighthouseScore": {
+        "performance": 92,
+        "accessibility": 93,
+        "bestPractices": 100,
+        "seo": 91
+      }
+    }
+  }
+}

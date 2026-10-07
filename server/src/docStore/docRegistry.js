@@ -79,4 +79,16 @@ function scheduleEviction(roomId) {
   }, EVICT_IDLE_MS);
 }
 
-module.exports = { getOrCreateDoc, getDoc, scheduleEviction, cancelEviction };
+async function flushAll() {
+  const snapshotService = require('../services/snapshot.service');
+  const promises = [];
+  for (const [roomId, entry] of registry.entries()) {
+    if (entry && entry.doc) {
+      promises.push(snapshotService.flushNow(roomId, entry.doc));
+    }
+  }
+  await Promise.all(promises);
+  logger.info(`Flushed ${promises.length} active Y.Doc snapshots to Mongo`);
+}
+
+module.exports = { getOrCreateDoc, getDoc, scheduleEviction, cancelEviction, flushAll };

@@ -29,12 +29,10 @@ function getRole(roomId, userId) {
 // immediately, without waiting for the next reconnect (spec §9 edge case:
 // "role downgraded mid-session takes effect on the very next edit attempt").
 function setRole(roomId, userId, role) {
-  let map = roleMaps.get(roomId);
-  if (!map) {
-    map = new Map();
-    roleMaps.set(roomId, map);
+  const map = roleMaps.get(roomId);
+  if (map) {
+    map.set(userId.toString(), role);
   }
-  map.set(userId.toString(), role);
 }
 
 function removeRoleMap(roomId) {

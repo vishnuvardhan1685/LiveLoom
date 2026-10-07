@@ -36,4 +36,15 @@ function broadcastLocal(roomId, payload, excludeWs) {
     }
 }
 
-module.exports = { addSocket, removeSocket, localCount, broadcastLocal };
+// Close every local socket in the room with the given code/reason (e.g. 4403
+// "room deleted"). Clears the room from the map so subsequent lookups return 0.
+function closeRoom(roomId, code, reason) {
+    const set = rooms.get(roomId);
+    if (!set) return;
+    for (const ws of set) {
+        try { ws.close(code, reason); } catch (_) { /* ignore */ }
+    }
+    rooms.delete(roomId);
+}
+
+module.exports = { addSocket, removeSocket, localCount, broadcastLocal, closeRoom };

@@ -1,11 +1,23 @@
+import { lazy, Suspense } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { LoginPage }          from '@/pages/auth/LoginPage'
 import { SignupPage }          from '@/pages/auth/SignupPage'
 import { ForgotPasswordPage }  from '@/pages/auth/ForgotPasswordPage'
 import { DashboardPage }       from '@/pages/dashboard/DashboardPage'
-import { EditorPage }          from '@/pages/editor/EditorPage'
 import { JoinPage }            from '@/pages/JoinPage'
+import { NotFoundPage }        from '@/pages/NotFoundPage'
 import { useAuthContext }      from '@/app/providers/AuthProvider'
+
+const EditorPageLazy = lazy(() => import('@/pages/editor/EditorPage').then((m) => ({ default: m.EditorPage })))
+
+function PageLoader() {
+  return (
+    <div className="min-h-screen bg-background text-on-surface flex flex-col items-center justify-center font-mono text-xs gap-3">
+      <span className="material-symbols-outlined text-primary text-[32px] animate-spin">sync</span>
+      <span className="text-outline uppercase tracking-widest">Loading LiveLoom…</span>
+    </div>
+  )
+}
 
 function RequireAuth({ children }) {
   const { isAuthenticated } = useAuthContext()
@@ -30,6 +42,16 @@ export const routes = [
   { path: '/signup',          element: <RequireGuest><SignupPage /></RequireGuest> },
   { path: '/forgot-password', element: <RequireGuest><ForgotPasswordPage /></RequireGuest> },
   { path: '/dashboard',       element: <RequireAuth><DashboardPage /></RequireAuth> },
-  { path: '/room/:roomId',    element: <RequireAuth><EditorPage /></RequireAuth> },
-  { path: '/join/:token',     element: <JoinPage /> },  // handles its own auth check
+  {
+    path: '/room/:roomId',
+    element: (
+      <RequireAuth>
+        <Suspense fallback={<PageLoader />}>
+          <EditorPageLazy />
+        </Suspense>
+      </RequireAuth>
+    ),
+  },
+  { path: '/join/:token',     element: <JoinPage /> },
+  { path: '*',                element: <NotFoundPage /> },
 ]

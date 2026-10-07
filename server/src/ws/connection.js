@@ -81,7 +81,22 @@ async function handleConnection(ws, req) {
   let setupDone = false;
   let setupContext = null; // { roomId, userId, doc, awareness } — set after setup
 
+  let msgCount = 0;
+  let windowStart = Date.now();
+
   ws.on('message', (data) => {
+    const now = Date.now();
+    if (now - windowStart > 1000) {
+      msgCount = 0;
+      windowStart = now;
+    }
+    msgCount += 1;
+    if (msgCount > 300) {
+      logger.warn(`Per-socket rate limit exceeded for user ${userId} in room ${roomId}`);
+      close(ws, 1008, 'rate limit exceeded');
+      return;
+    }
+
     if (!setupDone) {
       // Buffer frames that arrive before setup finishes.
       messageQueue.push(data);

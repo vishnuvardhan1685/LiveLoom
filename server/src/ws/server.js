@@ -1,21 +1,31 @@
 const { WebSocketServer } = require('ws');
 const { handleConnection } = require('./connection');
 const logger = require('../utils/logger');
+const env = require('../config/env');
 
 // Server-initiated ping/pong keepalive.
-// Fires every 25s to prevent proxy/load-balancer idle-timeout cuts.
+// Fires every 30s to prevent proxy/load-balancer idle-timeout cuts.
 // Any socket that misses a pong is terminated, which triggers its 'close'
 // event and cleanly decrements the Redis activeCount.
-const PING_INTERVAL_MS = 25_000;
+const PING_INTERVAL_MS = 30_000;
 
 function attachWsServer(server) {
-  const wss = new WebSocketServer({ noServer: true });
+  const wss = new WebSocketServer({
+    noServer: true,
+    maxPayload: 5.2 * 1024 * 1024, // 5.2 MB limit allows 5MB file syncs while rejecting >5.2MB frames with code 1009
+  });
 
   server.on('upgrade', (req, socket, head) => {
+    const origin = req.headers.origin;
+    if (origin && !env.isOriginAllowed(origin)) {
+      logger.warn(`[WS UPGRADE REJECTED] Origin "${origin}" not in allowed CLIENT_ORIGINS`);
+      socket.write('HTTP/1.1 403 Forbidden\r\n\r\n');
+      socket.destroy();
+      return;
+    }
+
     const parsedUrl = new URL(req.url, 'http://localhost');
     const pathname = parsedUrl.pathname;
-    // y-websocket appends '/roomId' to serverUrl, so connections land on
-    // '/ws/<roomId>', not just '/ws'.
     if (!pathname || !pathname.startsWith('/ws')) {
       socket.destroy();
       return;
@@ -26,6 +36,15 @@ function attachWsServer(server) {
   });
 
   wss.on('connection', (ws, req) => {
+    ws.on('error', (err) => {
+      logger.warn(`WS connection error: ${err.message}`);
+      try {
+        if (ws.readyState === ws.OPEN || ws.readyState === ws.CONNECTING) {
+          ws.close(1009, 'message too big');
+        }
+      } catch (_) {}
+    });
+
     // Keepalive flag — set true on connect and on every pong response.
     ws.isAlive = true;
     ws.on('pong', () => { ws.isAlive = true; });

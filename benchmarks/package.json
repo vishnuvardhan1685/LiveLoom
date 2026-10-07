@@ -1,0 +1,14 @@
+{
+  "name": "liveloom-benchmarks",
+  "version": "0.1.0",
+  "private": true,
+  "main": "run_all.js",
+  "dependencies": {
+    "autocannon": "^8.0.0",
+    "playwright": "^1.63.0",
+    "ws": "^8.22.0",
+    "y-protocols": "^1.0.7",
+    "y-websocket": "^3.1.0",
+    "yjs": "^13.6.33"
+  }
+}

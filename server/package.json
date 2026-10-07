@@ -5,22 +5,27 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "benchmark:baseline": "node ../benchmarks/run_all.js BASELINE",
+    "benchmark:after": "node ../benchmarks/run_all.js AFTER"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "helmet": "^7.1.0",
     "ioredis": "^5.4.1",
     "jsonwebtoken": "^9.0.2",
     "lib0": "^0.2.119",
     "mongoose": "^8.5.1",
     "ws": "^8.22.0",
     "y-protocols": "^1.0.7",
+    "y-websocket": "^3.1.0",
     "yjs": "^13.6.33"
   },
   "devDependencies": {
+    "autocannon": "^8.0.0",
     "nodemon": "^3.1.4"
   }
 }

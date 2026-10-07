@@ -3,6 +3,9 @@ import { AuthProvider }   from '@/app/providers/AuthProvider'
 import { YjsProvider }    from '@/app/providers/YjsProvider'
 import { SocketProvider } from '@/app/providers/SocketProvider'
 import { routes }         from '@/app/router'
+import { Toaster }        from '@/components/Toast'
+import { ErrorBoundary }  from '@/components/ErrorBoundary'
+import { ServerWakingScreen } from '@/components/ServerWakingScreen'
 
 function AppRoutes() {
   return useRoutes(routes)
@@ -10,14 +13,20 @@ function AppRoutes() {
 
 export function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <YjsProvider>
-          <SocketProvider>
-            <AppRoutes />
-          </SocketProvider>
-        </YjsProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <ServerWakingScreen>
+        <BrowserRouter>
+          <AuthProvider>
+            <YjsProvider>
+              <SocketProvider>
+                <AppRoutes />
+                {/* Global toast notification portal — must be outside routes */}
+                <Toaster />
+              </SocketProvider>
+            </YjsProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </ServerWakingScreen>
+    </ErrorBoundary>
   )
 }

@@ -2,9 +2,13 @@ const { verifyJwt } = require('../utils/jwt');
 
 function requireAuth(req, res, next) {
     const header = req.headers.authorization;
-    const [scheme, token] = header ? header.split(' ') : [];
+    const [scheme, headerToken] = header ? header.split(' ') : [];
 
-    if(scheme !== 'Bearer' || !token){
+    // EventSource cannot set custom headers, so we also accept ?token= as a
+    // fallback — only for authenticated GET requests to /rooms/events.
+    const token = (scheme === 'Bearer' && headerToken) ? headerToken : req.query.token;
+
+    if (!token) {
         return res.status(401).json({ error: 'Missing or invalid authorization header' });
     }
 

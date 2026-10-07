@@ -1,0 +1,3 @@
+
+--- TEST C: Convergence Correctness (10 clients, 5,000 concurrent ops) ---
+Result: PASSED (Byte-Identical) | Total Ops: 5000 | Final Text Length: 1099

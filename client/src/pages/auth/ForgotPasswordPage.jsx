@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AuthLayout } from '@/components/auth/AuthLayout'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 
 export function ForgotPasswordPage() {
+  useDocumentTitle('Reset Password')
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
 

@@ -3,8 +3,10 @@ import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { AuthLayout }    from '@/components/auth/AuthLayout'
 import { PasswordInput } from '@/components/auth/PasswordInput'
 import { useAuthContext } from '@/app/providers/AuthProvider'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 
 export function LoginPage() {
+  useDocumentTitle('Sign in')
   const { login, isLoading, error, clearError } = useAuthContext()
   const navigate = useNavigate()
   const location = useLocation()

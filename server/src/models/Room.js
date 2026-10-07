@@ -42,6 +42,9 @@ const roomSchema = new mongoose.Schema(
     { timestamps: true },
 );
 
+roomSchema.index({ ownerId: 1 });
+roomSchema.index({ 'members.userId': 1 });
+
 roomSchema.statics.ROLES = ROLES;
 
 roomSchema.methods.getRole = function getRole(userId) {

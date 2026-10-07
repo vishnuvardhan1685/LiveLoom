@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: liveloom-backend
+    env: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: ./server
+    healthCheckPath: /readyz
+    autoDeploy: false
+    envVars:
+      - key: PORT
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+      - key: JWT_SECRET
+      - key: WS_TICKET_SECRET
+      - key: CLIENT_ORIGINS
+      - key: LOG_LEVEL
+        value: info
+      - key: TRUST_PROXY
+        value: "true"
+      - key: REDIS_URL

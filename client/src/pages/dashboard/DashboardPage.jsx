@@ -1,47 +1,78 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { roomsApi, invitesApi } from '@/lib/api'
 import { useAuthContext } from '@/app/providers/AuthProvider'
 import { ProfileModal } from '@/components/ProfileModal'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
+import { ManageMembersModal } from '@/components/ManageMembersModal'
+import { toast } from '@/components/Toast'
+import { useUserEvents } from '@/hooks/useUserEvents'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+
+function parseInviteToken(input) {
+  if (!input) return ''
+  const trimmed = input.trim()
+  if (trimmed.includes('/join/')) {
+    return trimmed.split('/join/')[1].split('?')[0].split('#')[0]
+  }
+  return trimmed
+}
 
 export function DashboardPage() {
+  useDocumentTitle('Dashboard')
   const { user, logout } = useAuthContext()
   const navigate = useNavigate()
 
   const [rooms,        setRooms]        = useState([])
-  const [roomsLoading, setRoomsLoading]  = useState(true)
+  const [roomsLoading, setRoomsLoading] = useState(true)
   const [roomName,     setRoomName]     = useState('')
   const [inviteToken,  setInviteToken]  = useState('')
-  const [error,        setError]        = useState(null)
   const [busy,         setBusy]         = useState(false)
   const [profileOpen,  setProfileOpen]  = useState(false)
+  const [confirmState, setConfirmState] = useState(null)
+  const [managingRoom, setManagingRoom] = useState(null)
 
-  // Load the user's rooms from the server on mount
   useEffect(() => {
     let cancelled = false
     roomsApi.list()
-      .then(({ data }) => {
-        if (!cancelled) setRooms(data)
-      })
-      .catch(() => {
-        // Silent — recents still work if the request fails
-      })
-      .finally(() => {
-        if (!cancelled) setRoomsLoading(false)
-      })
+      .then(({ data }) => { if (!cancelled) setRooms(data) })
+      .catch(() => toast.error('Could not load rooms.'))
+      .finally(() => { if (!cancelled) setRoomsLoading(false) })
     return () => { cancelled = true }
   }, [])
+
+  const handleRoomDeletedEvent = useCallback(({ roomId, roomName: name }) => {
+    setRooms((prev) => prev.filter((r) => r.id !== roomId))
+    toast.warn(`Room "${name}" was deleted by the owner.`)
+  }, [])
+
+  const handleRoleChangedAck = useCallback(({ targetName, role }) => {
+    toast.success(`Role of ${targetName} changed to ${role}.`)
+  }, [])
+
+  const handleRoleChanged = useCallback(({ roomId: rId, roomName: rName, role: newRole }) => {
+    setRooms((prev) => prev.map((r) => r.id === rId ? { ...r, role: newRole } : r))
+    toast.warn(`Your role in "${rName}" was changed to ${newRole}.`)
+  }, [])
+
+  useUserEvents({
+    onRoomDeleted:    handleRoomDeletedEvent,
+    onRoleChanged:    handleRoleChanged,
+    onRoleChangedAck: handleRoleChangedAck,
+  })
 
   async function handleCreate(e) {
     e.preventDefault()
     if (!roomName.trim()) return
-    setBusy(true); setError(null)
+    setBusy(true)
     try {
       const { data } = await roomsApi.create(roomName.trim())
       setRooms((prev) => [{ id: data.id, name: data.name, role: data.role, memberCount: 1 }, ...prev])
+      setRoomName('')
+      toast.success(`Room "${data.name}" created!`)
       navigate(`/room/${data.id}`)
     } catch (err) {
-      setError(err.response?.data?.error ?? 'Could not create room.')
+      toast.error(err.response?.data?.error ?? 'Could not create room.')
     } finally {
       setBusy(false)
     }
@@ -49,24 +80,49 @@ export function DashboardPage() {
 
   async function handleJoin(e) {
     e.preventDefault()
-    if (!inviteToken.trim()) return
-    setBusy(true); setError(null)
+    const token = parseInviteToken(inviteToken)
+    if (!token) {
+      toast.error('Please enter a valid invite token or link.')
+      return
+    }
+    setBusy(true)
     try {
-      const { data } = await invitesApi.redeem(inviteToken.trim())
+      const { data } = await invitesApi.redeem(token)
+      toast.success('Successfully joined room!')
       navigate(`/room/${data.roomId}`)
     } catch (err) {
       const status = err.response?.status
       if (status === 410) {
-        setError('Invite link has expired or been fully used.')
+        toast.error('Invite link has expired or been fully used.')
       } else if (status === 404) {
-        setError('Invite link not found.')
+        toast.error('Invite link not found.')
       } else {
-        setError(err.response?.data?.error ?? 'Invalid or expired invite.')
+        toast.error(err.response?.data?.error ?? 'Invalid or expired invite.')
       }
     } finally {
       setBusy(false)
     }
   }
+
+  const handleDeleteRequest = useCallback((room) => {
+    setConfirmState({
+      title:     `Delete "${room.name}"?`,
+      body:      `This removes the room and all files for every member. This cannot be undone.`,
+      danger:    true,
+      label:     'Delete',
+      onConfirm: async () => {
+        try {
+          await roomsApi.delete(room.id)
+          setRooms((prev) => prev.filter((r) => r.id !== room.id))
+          toast.success(`Room "${room.name}" deleted.`)
+        } catch (err) {
+          const status = err.response?.status
+          if (status === 403) toast.error('Only the room owner can delete it.')
+          else toast.error(err.response?.data?.error ?? 'Could not delete room.')
+        }
+      },
+    })
+  }, [])
 
   const handleLogout = () => {
     logout()
@@ -76,94 +132,131 @@ export function DashboardPage() {
   const ROLE_COLOR = { owner: '#7c6af7', editor: '#34d399', viewer: '#f59e0b' }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', borderBottom: '1px solid var(--border)' }}>
-        <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12, letterSpacing: '0.1em', color: 'var(--text-muted)' }}>LIVELOOM</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+    <div className="min-h-screen bg-background text-on-surface flex flex-col font-sans">
+      <header className="flex justify-between items-center px-4 md:px-6 py-4 border-b border-surface-variant bg-surface-container-lowest">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-primary text-[20px]">code_blocks</span>
+          <span className="font-mono text-xs font-bold tracking-widest text-outline uppercase">LIVELOOM</span>
+        </div>
+        <div className="flex items-center gap-3">
           <button
             onClick={() => setProfileOpen(true)}
-            className="ll-btn ll-btn-ghost"
-            style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}
+            aria-label="User profile settings"
+            className="ll-btn ll-btn-ghost text-xs min-h-[40px] px-3 flex items-center gap-2"
           >
-            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>person</span>
-            {user?.name ?? user?.email}
+            <span className="material-symbols-outlined text-[18px]">person</span>
+            <span className="truncate max-w-[120px] sm:max-w-xs">{user?.name ?? user?.email}</span>
           </button>
         </div>
       </header>
 
-      <main style={{ maxWidth: 760, margin: '0 auto', padding: '48px 24px' }}>
-        {error && (
-          <div style={{ marginBottom: 20, padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 4, fontSize: 13, color: '#f87171' }}>
-            {error}
-          </div>
-        )}
-
-        {/* Create / Join row */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 40 }}>
-          <form onSubmit={handleCreate} style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 6, padding: 20 }}>
-            <h3 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 12px', color: 'var(--text-primary)' }}>New room</h3>
-            <input
-              value={roomName}
-              onChange={(e) => setRoomName(e.target.value)}
-              placeholder="Room name"
-              className="ll-input"
-            />
-            <button type="submit" disabled={busy} className="ll-btn ll-btn-primary" style={{ width: '100%', marginTop: 10 }}>
+      <main className="w-full max-w-4xl mx-auto px-4 py-8 md:py-12 flex-1">
+        {/* Create / Join grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+          <form onSubmit={handleCreate} className="bg-surface-container-low border border-surface-variant p-5 flex flex-col justify-between gap-3">
+            <div>
+              <h3 className="text-sm font-semibold text-on-surface mb-1">New room</h3>
+              <p className="text-xs text-outline mb-3">Create a new workspace for real-time collaboration.</p>
+              <label htmlFor="dashboard-create-room-input" className="sr-only">Room name</label>
+              <input
+                id="dashboard-create-room-input"
+                value={roomName}
+                onChange={(e) => setRoomName(e.target.value)}
+                placeholder="Room name"
+                className="ll-input"
+              />
+            </div>
+            <button type="submit" disabled={busy} className="ll-btn ll-btn-primary w-full min-h-[40px]">
               Create
             </button>
           </form>
 
-          <form onSubmit={handleJoin} style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 6, padding: 20 }}>
-            <h3 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 12px', color: 'var(--text-primary)' }}>Join with invite</h3>
-            <input
-              value={inviteToken}
-              onChange={(e) => setInviteToken(e.target.value)}
-              placeholder="Invite token or paste full link"
-              className="ll-input"
-            />
-            <button type="submit" disabled={busy} className="ll-btn ll-btn-ghost" style={{ width: '100%', marginTop: 10 }}>
+          <form onSubmit={handleJoin} className="bg-surface-container-low border border-surface-variant p-5 flex flex-col justify-between gap-3">
+            <div>
+              <h3 className="text-sm font-semibold text-on-surface mb-1">Join with invite</h3>
+              <p className="text-xs text-outline mb-3">Paste a token or full invite link to join an existing room.</p>
+              <label htmlFor="dashboard-join-invite-input" className="sr-only">Invite token or link</label>
+              <input
+                id="dashboard-join-invite-input"
+                value={inviteToken}
+                onChange={(e) => setInviteToken(e.target.value)}
+                placeholder="Invite token or paste full link"
+                className="ll-input"
+              />
+            </div>
+            <button type="submit" disabled={busy} className="ll-btn ll-btn-ghost w-full min-h-[40px]">
               Join
             </button>
           </form>
         </div>
 
         {/* Rooms list */}
-        <h3 style={{ fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: 10 }}>MY ROOMS</h3>
+        <h3 className="text-xs font-mono text-outline tracking-wider uppercase mb-3">MY ROOMS</h3>
         {roomsLoading ? (
-          <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Loading…</p>
+          <div className="py-8 text-center text-xs font-mono text-outline">Loading rooms…</div>
         ) : rooms.length === 0 ? (
-          <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>No rooms yet — create or join one above.</p>
+          <div className="p-8 border border-dashed border-surface-variant text-center flex flex-col items-center gap-3 bg-surface-container-lowest">
+            <span className="material-symbols-outlined text-[36px] text-outline">meeting_room</span>
+            <p className="text-xs text-outline font-mono max-w-sm">
+              No rooms yet. Create one or join with an invite.
+            </p>
+          </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div className="flex flex-col gap-2">
             {rooms.map((r) => (
               <div
                 key={r.id}
-                onClick={() => navigate(`/room/${r.id}`)}
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '10px 14px',
-                  border: '1px solid var(--border)', borderRadius: 4,
-                  cursor: 'pointer', fontSize: 13,
-                  transition: 'background 0.1s, border-color 0.1s',
-                  background: 'var(--bg-surface)',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.borderColor = 'var(--accent-border)' }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-surface)'; e.currentTarget.style.borderColor = 'var(--border)' }}
+                className="flex items-center justify-between p-3 border border-surface-variant bg-surface-container-low hover:border-outline transition-colors text-xs font-mono"
               >
-                <span style={{ color: 'var(--text-primary)' }}>{r.name}</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div className="flex items-center gap-3 min-w-0 flex-1 pr-2">
+                  <span className="material-symbols-outlined text-outline text-[18px]">folder</span>
+                  <span
+                    onClick={() => navigate(`/room/${r.id}`)}
+                    className="text-on-surface font-semibold cursor-pointer truncate hover:text-primary transition-colors"
+                    title={r.name}
+                  >
+                    {r.name}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                   {r.memberCount != null && (
-                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{r.memberCount} member{r.memberCount !== 1 ? 's' : ''}</span>
+                    <span className="text-[11px] text-outline hidden sm:inline">
+                      {r.memberCount} member{r.memberCount !== 1 ? 's' : ''}
+                    </span>
                   )}
-                  <span style={{
-                    fontSize: 11, padding: '1px 7px', borderRadius: 3,
-                    background: `${ROLE_COLOR[r.role] ?? '#555'}22`,
-                    color: ROLE_COLOR[r.role] ?? 'var(--text-muted)',
-                    border: `1px solid ${ROLE_COLOR[r.role] ?? '#555'}44`,
-                    fontFamily: "'JetBrains Mono', monospace",
+
+                  <span className="text-[10px] uppercase font-bold px-2 py-0.5 border" style={{
+                    borderColor: `${ROLE_COLOR[r.role] ?? '#555'}66`,
+                    color: ROLE_COLOR[r.role] ?? '#aaa',
+                    backgroundColor: `${ROLE_COLOR[r.role] ?? '#555'}15`,
                   }}>
                     {r.role}
                   </span>
+
+                  {r.role === 'owner' && (
+                    <div className="flex items-center gap-1">
+                      <button
+                        id={`manage-members-${r.id}`}
+                        onClick={(e) => { e.stopPropagation(); setManagingRoom(r) }}
+                        title="Manage members"
+                        aria-label={`Manage members for ${r.name}`}
+                        className="w-10 h-10 flex items-center justify-center text-outline hover:text-primary transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">group</span>
+                      </button>
+
+                      <button
+                        id={`delete-room-${r.id}`}
+                        onClick={(e) => { e.stopPropagation(); handleDeleteRequest(r) }}
+                        title="Delete room"
+                        aria-label={`Delete room ${r.name}`}
+                        className="w-10 h-10 flex items-center justify-center text-outline hover:text-error transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -176,6 +269,16 @@ export function DashboardPage() {
         onClose={() => setProfileOpen(false)}
         onLogout={handleLogout}
       />
+
+      <ConfirmDialog state={confirmState} onClose={() => setConfirmState(null)} />
+
+      {managingRoom && (
+        <ManageMembersModal
+          roomId={managingRoom.id}
+          roomName={managingRoom.name}
+          onClose={() => setManagingRoom(null)}
+        />
+      )}
     </div>
   )
 }

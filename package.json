@@ -1,0 +1,12 @@
+{
+  "name": "liveloom-root",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:reset": "docker compose down -v",
+    "smoke": "node scripts/smoke_test.js"
+  }
+}

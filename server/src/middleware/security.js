@@ -12,15 +12,14 @@ function createRateLimiter({ windowMs = 60_000, max = 30, message = 'Too many re
     const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
     const now = Date.now();
     
-    if (!requestsMap.has(ip)) {
-      requestsMap.set(ip, []);
+    let record = requestsMap.get(ip);
+    if (!record || now > record.resetTime) {
+      record = { count: 0, resetTime: now + windowMs };
+      requestsMap.set(ip, record);
     }
 
-    const timestamps = requestsMap.get(ip).filter((ts) => now - ts < windowMs);
-    timestamps.push(now);
-    requestsMap.set(ip, timestamps);
-
-    if (timestamps.length > max) {
+    record.count += 1;
+    if (record.count > max) {
       return res.status(429).json({ error: message });
     }
 

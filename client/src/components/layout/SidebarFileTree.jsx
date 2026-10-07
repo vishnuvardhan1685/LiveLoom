@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
+import { ConfirmDialog, InputDialog } from '@/components/ConfirmDialog'
 
 function NewFileInput({ onCommit, onCancel, depth }) {
   const [value, setValue] = useState('')
@@ -22,7 +23,7 @@ function NewFileInput({ onCommit, onCancel, depth }) {
   )
 }
 
-function Node({ node, depth, expandedDirs, toggleDir, openFile, activePath, onDeleteFile, onRenameFile, collaborators }) {
+function Node({ node, depth, expandedDirs, toggleDir, openFile, activePath, onDeleteFile, onRenameFile, collaborators, onRenameRequest, onDeleteRequest }) {
   if (node.type === 'directory') {
     const isOpen = expandedDirs.has(node.path)
     return (
@@ -89,11 +90,7 @@ function Node({ node, depth, expandedDirs, toggleDir, openFile, activePath, onDe
           <button
             onClick={(e) => {
               e.stopPropagation()
-              const newName = window.prompt(`Rename ${node.name} to:`, node.name)
-              if (newName && newName.trim() && newName !== node.name) {
-                const dir = node.path.includes('/') ? node.path.substring(0, node.path.lastIndexOf('/') + 1) : ''
-                onRenameFile(node.path, dir + newName.trim())
-              }
+              onRenameRequest?.(node)
             }}
             className="opacity-0 group-hover:opacity-100 text-outline hover:text-on-surface transition-opacity ml-1"
             title="Rename file"
@@ -106,7 +103,7 @@ function Node({ node, depth, expandedDirs, toggleDir, openFile, activePath, onDe
           <button
             onClick={(e) => {
               e.stopPropagation()
-              if (window.confirm(`Delete ${node.name}?`)) onDeleteFile(node.path)
+              onDeleteRequest?.(node)
             }}
             className="opacity-0 group-hover:opacity-100 text-outline hover:text-error transition-opacity ml-1"
             title="Delete file"
@@ -120,7 +117,36 @@ function Node({ node, depth, expandedDirs, toggleDir, openFile, activePath, onDe
 }
 
 export function SidebarFileTree({ tree, expandedDirs, toggleDir, openFile, activePath, onNewFile, onDeleteFile, onRenameFile, collaborators, members, width }) {
-  const [creating, setCreating] = useState(false)
+  const [creating,      setCreating]      = useState(false)
+  const [confirmState,  setConfirmState]  = useState(null)   // ConfirmDialog state
+  const [inputState,    setInputState]    = useState(null)   // InputDialog state
+
+  // Opens the rename InputDialog for a file node
+  const handleRenameRequest = (node) => {
+    setInputState({
+      title:        `Rename "${node.name}"`,
+      placeholder:  node.name,
+      defaultValue: node.name,
+      label:        'Rename',
+      onCommit: (newName) => {
+        if (newName !== node.name) {
+          const dir = node.path.includes('/') ? node.path.substring(0, node.path.lastIndexOf('/') + 1) : ''
+          onRenameFile?.(node.path, dir + newName)
+        }
+      },
+    })
+  }
+
+  // Opens the delete ConfirmDialog for a file node
+  const handleDeleteRequest = (node) => {
+    setConfirmState({
+      title:     `Delete "${node.name}"?`,
+      body:      'This file will be removed for all collaborators. This cannot be undone.',
+      danger:    true,
+      label:     'Delete',
+      onConfirm: () => onDeleteFile?.(node.path),
+    })
+  }
 
   const handleCommit = (name) => {
     setCreating(false)
@@ -157,6 +183,7 @@ export function SidebarFileTree({ tree, expandedDirs, toggleDir, openFile, activ
   const userList = Array.from(memberMap.values())
 
   return (
+    <>
     <aside
       className="bg-surface-container-lowest border-r border-surface-variant flex flex-col justify-between select-none overflow-hidden flex-shrink-0"
       style={{ width: `${width}px` }}
@@ -169,15 +196,18 @@ export function SidebarFileTree({ tree, expandedDirs, toggleDir, openFile, activ
             EXPLORER
           </span>
         </div>
-        <div className="flex items-center gap-1 text-outline">
-          <button
-            onClick={() => setCreating(true)}
-            className="hover:text-on-surface transition-colors"
-            title="New File"
-          >
-            <span className="material-symbols-outlined text-[14px]">note_add</span>
-          </button>
-        </div>
+        {/* The new-file button is omitted for viewers (onNewFile is undefined) */}
+        {onNewFile && (
+          <div className="flex items-center gap-1 text-outline">
+            <button
+              onClick={() => setCreating(true)}
+              className="hover:text-on-surface transition-colors"
+              title="New File"
+            >
+              <span className="material-symbols-outlined text-[14px]">note_add</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* File Tree List */}
@@ -191,8 +221,8 @@ export function SidebarFileTree({ tree, expandedDirs, toggleDir, openFile, activ
         )}
 
         {tree.length === 0 && !creating ? (
-          <p className="text-xs text-outline px-3 py-2 font-mono">
-            No files yet — click <strong>+</strong> or drag files here.
+          <p className="text-xs text-outline px-3 py-3 font-mono leading-relaxed">
+            No files in room. Click <strong className="text-on-surface">+</strong> to create a file.
           </p>
         ) : (
           tree.map((node) => (
@@ -201,6 +231,8 @@ export function SidebarFileTree({ tree, expandedDirs, toggleDir, openFile, activ
               expandedDirs={expandedDirs} toggleDir={toggleDir}
               openFile={openFile} activePath={activePath}
               onDeleteFile={onDeleteFile} onRenameFile={onRenameFile} collaborators={collaborators}
+              onRenameRequest={handleRenameRequest}
+              onDeleteRequest={handleDeleteRequest}
             />
           ))
         )}
@@ -214,6 +246,12 @@ export function SidebarFileTree({ tree, expandedDirs, toggleDir, openFile, activ
           </span>
           <span className="font-mono text-[9px] text-tertiary">MESH STATUS</span>
         </div>
+
+        {userList.length <= 1 && (
+          <p className="text-[10px] text-outline font-mono py-1">
+            You are the only member online. Share invite link to collaborate.
+          </p>
+        )}
 
         {userList.map((peer) => (
           <div
@@ -240,5 +278,10 @@ export function SidebarFileTree({ tree, expandedDirs, toggleDir, openFile, activ
         ))}
       </div>
     </aside>
+
+    {/* File-level modals — rendered outside <aside> so they escape overflow:hidden */}
+    <ConfirmDialog state={confirmState} onClose={() => setConfirmState(null)} />
+    <InputDialog   state={inputState}   onClose={() => setInputState(null)} />
+  </>
   )
 }

@@ -69,6 +69,12 @@ export const roomsApi = {
   getTicket: (id) => apiClient.post(`/rooms/${id}/tickets`),
   createInvite: (id, role, expiresAt, maxUses) =>
     apiClient.post(`/rooms/${id}/invites`, { role, expiresAt, maxUses }),
+  // Member management
+  getMembers: (id) => apiClient.get(`/rooms/${id}/members`),
+  patchMemberRole: (roomId, userId, role) =>
+    apiClient.patch(`/rooms/${roomId}/members/${userId}`, { role }),
+  removeMember: (roomId, userId) =>
+    apiClient.delete(`/rooms/${roomId}/members/${userId}`),
 }
 
 // ─── Invites ─────────────────────────────────────────────────────────────────

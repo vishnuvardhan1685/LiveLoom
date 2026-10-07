@@ -23,10 +23,29 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    target: 'esnext',
+    minify: 'esbuild',
+    cssMinify: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('monaco-editor') || id.includes('y-monaco') || id.includes('@monaco-editor')) {
+            return 'monaco'
+          }
+          if (id.includes('yjs') || id.includes('y-websocket') || id.includes('y-indexeddb') || id.includes('y-protocols')) {
+            return 'yjs'
+          }
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router-dom')) {
+            return 'vendor-react'
+          }
+        },
+      },
+    },
+  },
   server: {
     port: 5173,
     proxy: {
-      // Server runs on PORT=4000, routes at /auth, /rooms, /invites (no /api prefix)
       '/auth': {
         target: 'http://localhost:4000',
         changeOrigin: true,

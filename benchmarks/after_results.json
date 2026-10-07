@@ -1,0 +1,1261 @@
+{
+  "label": "AFTER",
+  "timestamp": "2026-10-06T17:37:05.735Z",
+  "sysInfo": {
+    "os": "Darwin 25.2.0 (arm64)",
+    "cpuModel": "Apple M4",
+    "cpuCores": 10,
+    "ramGB": "16.00",
+    "nodeVersion": "v26.0.0"
+  },
+  "medianRun": {
+    "testA": {
+      "2": {
+        "count": 24,
+        "min": 0.51,
+        "max": 2.16,
+        "median": 1.11,
+        "p50": 1.11,
+        "p95": 1.86,
+        "p99": 2.16,
+        "mean": 1.13,
+        "spread": 1.65
+      },
+      "10": {
+        "count": 24,
+        "min": 0.84,
+        "max": 9.27,
+        "median": 1.16,
+        "p50": 1.16,
+        "p95": 1.81,
+        "p99": 9.27,
+        "mean": 1.54,
+        "spread": 8.43
+      },
+      "25": {
+        "count": 24,
+        "min": 0.43,
+        "max": 1.71,
+        "median": 0.94,
+        "p50": 0.94,
+        "p95": 1.6,
+        "p99": 1.71,
+        "mean": 1.01,
+        "spread": 1.28
+      },
+      "50": {
+        "count": 24,
+        "min": 0.87,
+        "max": 3.05,
+        "median": 1.11,
+        "p50": 1.11,
+        "p95": 1.55,
+        "p99": 3.05,
+        "mean": 1.19,
+        "spread": 2.18
+      }
+    },
+    "testB": [
+      {
+        "targetConns": 100,
+        "targetRooms": 20,
+        "activeConns": 100,
+        "errors": 0,
+        "connectTimeMs": 8062.19,
+        "rssMB": 130.31,
+        "rssDeltaMB": 2.09,
+        "latencyP50": 0,
+        "latencyP95": 0,
+        "eventLoopLagP95": "11.25",
+        "exceeds200ms": false
+      },
+      {
+        "targetConns": 500,
+        "targetRooms": 100,
+        "activeConns": 500,
+        "errors": 0,
+        "connectTimeMs": 39672.47,
+        "rssMB": 141.41,
+        "rssDeltaMB": 11.09,
+        "latencyP50": 0,
+        "latencyP95": 0,
+        "eventLoopLagP95": "11.30",
+        "exceeds200ms": false
+      },
+      {
+        "targetConns": 1000,
+        "targetRooms": 200,
+        "activeConns": 1000,
+        "errors": 0,
+        "connectTimeMs": 79417.44,
+        "rssMB": 175.64,
+        "rssDeltaMB": 28.56,
+        "latencyP50": 0,
+        "latencyP95": 0,
+        "eventLoopLagP95": "11.35",
+        "exceeds200ms": false
+      }
+    ],
+    "testC": {
+      "totalOps": 5000,
+      "numClients": 10,
+      "finalTextLength": 486,
+      "passed": true
+    },
+    "testD": {
+      "reconvergeTimeMs": 792.64,
+      "isByteIdentical": true,
+      "noLostEdits": true,
+      "finalTextLength": 54
+    },
+    "testE": {
+      "sizeResults": [
+        {
+          "targetSizeKB": 10,
+          "syncTimeMs": 239.4,
+          "bytesTransferred": 10277,
+          "kbTransferred": 10.04
+        },
+        {
+          "targetSizeKB": 100,
+          "syncTimeMs": 257.56,
+          "bytesTransferred": 102440,
+          "kbTransferred": 100.04
+        },
+        {
+          "targetSizeKB": 1000,
+          "syncTimeMs": 1174.18,
+          "bytesTransferred": 1024040,
+          "kbTransferred": 1000.04
+        },
+        {
+          "targetSizeKB": 5000,
+          "syncTimeMs": 2163.63,
+          "bytesTransferred": 5120043,
+          "kbTransferred": 5000.04
+        }
+      ],
+      "fileResults": [
+        {
+          "fileCount": 1,
+          "syncTimeMs": 1869.15
+        },
+        {
+          "fileCount": 20,
+          "syncTimeMs": 1804.37
+        },
+        {
+          "fileCount": 100,
+          "syncTimeMs": 2948.79
+        }
+      ]
+    },
+    "testF": {
+      "error": "[object Object]"
+    },
+    "testG": {
+      "restoreTimeMs": 1249.75,
+      "dataLossUnflushedSaved": true,
+      "opsCount": 100000,
+      "sizeNoGCBytes": 1846790,
+      "sizeGCBytes": 1796790,
+      "compactionRatio": 2.71
+    },
+    "testH": {
+      "numRoomsTested": 50,
+      "initialRssMB": 191.66,
+      "activeRssMB": 121.58,
+      "idleRssMB": 123.41,
+      "memPerActiveRoomKB": -1435.2,
+      "memPerIdleRoomKB": -1397.76,
+      "evictionVerified": true
+    },
+    "testI": {
+      "unthrottled": {
+        "throttled": false,
+        "usersCount": 25,
+        "durationSec": 4,
+        "totalMessages": 8641,
+        "totalBytes": 1609451,
+        "msgsPerSec": 2160.25,
+        "bytesPerSec": 402362.75,
+        "kbPerSec": 392.93
+      },
+      "throttled": {
+        "throttled": true,
+        "usersCount": 25,
+        "durationSec": 4,
+        "totalMessages": 1849,
+        "totalBytes": 343167,
+        "msgsPerSec": 462.25,
+        "bytesPerSec": 85791.75,
+        "kbPerSec": 83.78
+      },
+      "reductionPercent": 78.68
+    },
+    "testJ": {
+      "POST /auth/login": {
+        "10": {
+          "reqPerSec": 85.5,
+          "p50": 113,
+          "p95": 0,
+          "p99": 188,
+          "errors": 0,
+          "timeouts": 0
+        },
+        "50": {
+          "reqPerSec": 82.5,
+          "p50": 573,
+          "p95": 0,
+          "p99": 814,
+          "errors": 0,
+          "timeouts": 0
+        },
+        "200": {
+          "reqPerSec": 76.25,
+          "p50": 2041,
+          "p95": 0,
+          "p99": 2835,
+          "errors": 0,
+          "timeouts": 0
+        }
+      },
+      "GET /rooms": {
+        "10": {
+          "reqPerSec": 103,
+          "p50": 72,
+          "p95": 0,
+          "p99": 346,
+          "errors": 0,
+          "timeouts": 0
+        },
+        "50": {
+          "reqPerSec": 127.5,
+          "p50": 106,
+          "p95": 0,
+          "p99": 929,
+          "errors": 0,
+          "timeouts": 0
+        },
+        "200": {
+          "reqPerSec": 130.25,
+          "p50": 1071,
+          "p95": 0,
+          "p99": 2054,
+          "errors": 0,
+          "timeouts": 0
+        }
+      },
+      "POST /rooms (create room)": {
+        "10": {
+          "reqPerSec": 71,
+          "p50": 63,
+          "p95": 0,
+          "p99": 993,
+          "errors": 0,
+          "timeouts": 0
+        },
+        "50": {
+          "reqPerSec": 138,
+          "p50": 77,
+          "p95": 0,
+          "p99": 931,
+          "errors": 0,
+          "timeouts": 0
+        },
+        "200": {
+          "reqPerSec": 121.25,
+          "p50": 1045,
+          "p95": 0,
+          "p99": 1988,
+          "errors": 0,
+          "timeouts": 0
+        }
+      },
+      "POST /rooms/:id/ws-ticket": {
+        "10": {
+          "reqPerSec": 69,
+          "p50": 55,
+          "p95": 0,
+          "p99": 939,
+          "errors": 0,
+          "timeouts": 0
+        },
+        "50": {
+          "reqPerSec": 141,
+          "p50": 72,
+          "p95": 0,
+          "p99": 1205,
+          "errors": 0,
+          "timeouts": 0
+        },
+        "200": {
+          "reqPerSec": 115.5,
+          "p50": 1069,
+          "p95": 0,
+          "p99": 1873,
+          "errors": 0,
+          "timeouts": 0
+        }
+      }
+    },
+    "testK": {
+      "viewerEditsRejected": true,
+      "oversizedPayloadRejected": false,
+      "otherClientsUnaffected": true
+    },
+    "testL": {
+      "initialDashboardJsKB": 339.44,
+      "editorChunkKB": 41.8,
+      "monacoChunkKB": 2131.29,
+      "totalJsKB": 2512.53,
+      "dashboardLoadTime4GMs": 1636,
+      "lighthouseScore": {
+        "performance": 92,
+        "accessibility": 93,
+        "bestPractices": 100,
+        "seo": 91
+      }
+    }
+  },
+  "rawRuns": [
+    {
+      "testA": {
+        "2": {
+          "count": 24,
+          "min": 0.79,
+          "max": 7.41,
+          "median": 1.77,
+          "p50": 1.77,
+          "p95": 5.45,
+          "p99": 7.41,
+          "mean": 2.01,
+          "spread": 6.62
+        },
+        "10": {
+          "count": 24,
+          "min": 0.62,
+          "max": 1.77,
+          "median": 1.07,
+          "p50": 1.07,
+          "p95": 1.68,
+          "p99": 1.77,
+          "mean": 1.11,
+          "spread": 1.15
+        },
+        "25": {
+          "count": 24,
+          "min": 0.51,
+          "max": 1.74,
+          "median": 0.93,
+          "p50": 0.93,
+          "p95": 1.38,
+          "p99": 1.74,
+          "mean": 0.96,
+          "spread": 1.23
+        },
+        "50": {
+          "count": 24,
+          "min": 0.45,
+          "max": 1.88,
+          "median": 0.98,
+          "p50": 0.98,
+          "p95": 1.87,
+          "p99": 1.88,
+          "mean": 0.97,
+          "spread": 1.42
+        }
+      },
+      "testB": [
+        {
+          "targetConns": 100,
+          "targetRooms": 20,
+          "activeConns": 100,
+          "errors": 0,
+          "connectTimeMs": 11174.85,
+          "rssMB": 141.02,
+          "rssDeltaMB": 2.39,
+          "latencyP50": 0,
+          "latencyP95": 0,
+          "eventLoopLagP95": "11.17",
+          "exceeds200ms": false
+        },
+        {
+          "targetConns": 500,
+          "targetRooms": 100,
+          "activeConns": 500,
+          "errors": 0,
+          "connectTimeMs": 45674.47,
+          "rssMB": 165.28,
+          "rssDeltaMB": 24.22,
+          "latencyP50": 0,
+          "latencyP95": 0,
+          "eventLoopLagP95": "11.35",
+          "exceeds200ms": false
+        },
+        {
+          "targetConns": 1000,
+          "targetRooms": 200,
+          "activeConns": 1000,
+          "errors": 0,
+          "connectTimeMs": 87248.88,
+          "rssMB": 164.23,
+          "rssDeltaMB": -1.38,
+          "latencyP50": 0,
+          "latencyP95": 0,
+          "eventLoopLagP95": "11.36",
+          "exceeds200ms": false
+        }
+      ],
+      "testC": {
+        "totalOps": 5000,
+        "numClients": 10,
+        "finalTextLength": 228,
+        "passed": true
+      },
+      "testD": {
+        "reconvergeTimeMs": 818.65,
+        "isByteIdentical": true,
+        "noLostEdits": true,
+        "finalTextLength": 54
+      },
+      "testE": {
+        "sizeResults": [
+          {
+            "targetSizeKB": 10,
+            "syncTimeMs": 256.05,
+            "bytesTransferred": 10277,
+            "kbTransferred": 10.04
+          },
+          {
+            "targetSizeKB": 100,
+            "syncTimeMs": 252.74,
+            "bytesTransferred": 102440,
+            "kbTransferred": 100.04
+          },
+          {
+            "targetSizeKB": 1000,
+            "syncTimeMs": 542.9,
+            "bytesTransferred": 1024040,
+            "kbTransferred": 1000.04
+          },
+          {
+            "targetSizeKB": 5000,
+            "syncTimeMs": 4411.46,
+            "bytesTransferred": 5120043,
+            "kbTransferred": 5000.04
+          }
+        ],
+        "fileResults": [
+          {
+            "fileCount": 1,
+            "syncTimeMs": 1995.25
+          },
+          {
+            "fileCount": 20,
+            "syncTimeMs": 2174.28
+          },
+          {
+            "fileCount": 100,
+            "syncTimeMs": 1390.4
+          }
+        ]
+      },
+      "testF": {
+        "crossLatencyP50": 144.57,
+        "crossLatencyP95": 215.86,
+        "crossLatencyP99": 215.86,
+        "awarenessRelayed": false,
+        "sampleCount": 20
+      },
+      "testG": {
+        "restoreTimeMs": 322.39,
+        "dataLossUnflushedSaved": true,
+        "opsCount": 100000,
+        "sizeNoGCBytes": 1846790,
+        "sizeGCBytes": 1796790,
+        "compactionRatio": 2.71
+      },
+      "testH": {
+        "numRoomsTested": 50,
+        "initialRssMB": 166.44,
+        "activeRssMB": 163.03,
+        "idleRssMB": 162.84,
+        "memPerActiveRoomKB": -69.76,
+        "memPerIdleRoomKB": -73.6,
+        "evictionVerified": true
+      },
+      "testI": {
+        "unthrottled": {
+          "throttled": false,
+          "usersCount": 25,
+          "durationSec": 4,
+          "totalMessages": 9127,
+          "totalBytes": 1699093,
+          "msgsPerSec": 2281.75,
+          "bytesPerSec": 424773.25,
+          "kbPerSec": 414.82
+        },
+        "throttled": {
+          "throttled": true,
+          "usersCount": 25,
+          "durationSec": 4,
+          "totalMessages": 1873,
+          "totalBytes": 347783,
+          "msgsPerSec": 468.25,
+          "bytesPerSec": 86945.75,
+          "kbPerSec": 84.91
+        },
+        "reductionPercent": 79.53
+      },
+      "testJ": {
+        "POST /auth/login": {
+          "10": {
+            "reqPerSec": 84,
+            "p50": 119,
+            "p95": 0,
+            "p99": 168,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "50": {
+            "reqPerSec": 85,
+            "p50": 567,
+            "p95": 0,
+            "p99": 784,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "200": {
+            "reqPerSec": 74.25,
+            "p50": 2091,
+            "p95": 0,
+            "p99": 2931,
+            "errors": 0,
+            "timeouts": 0
+          }
+        },
+        "GET /rooms": {
+          "10": {
+            "reqPerSec": 103.75,
+            "p50": 70,
+            "p95": 0,
+            "p99": 365,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "50": {
+            "reqPerSec": 116.75,
+            "p50": 87,
+            "p95": 0,
+            "p99": 1283,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "200": {
+            "reqPerSec": 143.25,
+            "p50": 1043,
+            "p95": 0,
+            "p99": 1956,
+            "errors": 0,
+            "timeouts": 0
+          }
+        },
+        "POST /rooms (create room)": {
+          "10": {
+            "reqPerSec": 58.5,
+            "p50": 92,
+            "p95": 0,
+            "p99": 1008,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "50": {
+            "reqPerSec": 140.25,
+            "p50": 141,
+            "p95": 0,
+            "p99": 867,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "200": {
+            "reqPerSec": 143.5,
+            "p50": 1125,
+            "p95": 0,
+            "p99": 2037,
+            "errors": 0,
+            "timeouts": 0
+          }
+        },
+        "POST /rooms/:id/ws-ticket": {
+          "10": {
+            "reqPerSec": 53,
+            "p50": 57,
+            "p95": 0,
+            "p99": 1936,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "50": {
+            "reqPerSec": 128.5,
+            "p50": 81,
+            "p95": 0,
+            "p99": 930,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "200": {
+            "reqPerSec": 150.75,
+            "p50": 1018,
+            "p95": 0,
+            "p99": 1973,
+            "errors": 0,
+            "timeouts": 0
+          }
+        }
+      },
+      "testK": {
+        "viewerEditsRejected": true,
+        "oversizedPayloadRejected": false,
+        "otherClientsUnaffected": true
+      },
+      "testL": {
+        "initialDashboardJsKB": 339.44,
+        "editorChunkKB": 41.8,
+        "monacoChunkKB": 2131.29,
+        "totalJsKB": 2512.53,
+        "dashboardLoadTime4GMs": 2273,
+        "lighthouseScore": {
+          "performance": 92,
+          "accessibility": 93,
+          "bestPractices": 100,
+          "seo": 91
+        }
+      }
+    },
+    {
+      "testA": {
+        "2": {
+          "count": 24,
+          "min": 0.51,
+          "max": 2.16,
+          "median": 1.11,
+          "p50": 1.11,
+          "p95": 1.86,
+          "p99": 2.16,
+          "mean": 1.13,
+          "spread": 1.65
+        },
+        "10": {
+          "count": 24,
+          "min": 0.84,
+          "max": 9.27,
+          "median": 1.16,
+          "p50": 1.16,
+          "p95": 1.81,
+          "p99": 9.27,
+          "mean": 1.54,
+          "spread": 8.43
+        },
+        "25": {
+          "count": 24,
+          "min": 0.43,
+          "max": 1.71,
+          "median": 0.94,
+          "p50": 0.94,
+          "p95": 1.6,
+          "p99": 1.71,
+          "mean": 1.01,
+          "spread": 1.28
+        },
+        "50": {
+          "count": 24,
+          "min": 0.87,
+          "max": 3.05,
+          "median": 1.11,
+          "p50": 1.11,
+          "p95": 1.55,
+          "p99": 3.05,
+          "mean": 1.19,
+          "spread": 2.18
+        }
+      },
+      "testB": [
+        {
+          "targetConns": 100,
+          "targetRooms": 20,
+          "activeConns": 100,
+          "errors": 0,
+          "connectTimeMs": 8062.19,
+          "rssMB": 130.31,
+          "rssDeltaMB": 2.09,
+          "latencyP50": 0,
+          "latencyP95": 0,
+          "eventLoopLagP95": "11.25",
+          "exceeds200ms": false
+        },
+        {
+          "targetConns": 500,
+          "targetRooms": 100,
+          "activeConns": 500,
+          "errors": 0,
+          "connectTimeMs": 39672.47,
+          "rssMB": 141.41,
+          "rssDeltaMB": 11.09,
+          "latencyP50": 0,
+          "latencyP95": 0,
+          "eventLoopLagP95": "11.30",
+          "exceeds200ms": false
+        },
+        {
+          "targetConns": 1000,
+          "targetRooms": 200,
+          "activeConns": 1000,
+          "errors": 0,
+          "connectTimeMs": 79417.44,
+          "rssMB": 175.64,
+          "rssDeltaMB": 28.56,
+          "latencyP50": 0,
+          "latencyP95": 0,
+          "eventLoopLagP95": "11.35",
+          "exceeds200ms": false
+        }
+      ],
+      "testC": {
+        "totalOps": 5000,
+        "numClients": 10,
+        "finalTextLength": 486,
+        "passed": true
+      },
+      "testD": {
+        "reconvergeTimeMs": 792.64,
+        "isByteIdentical": true,
+        "noLostEdits": true,
+        "finalTextLength": 54
+      },
+      "testE": {
+        "sizeResults": [
+          {
+            "targetSizeKB": 10,
+            "syncTimeMs": 239.4,
+            "bytesTransferred": 10277,
+            "kbTransferred": 10.04
+          },
+          {
+            "targetSizeKB": 100,
+            "syncTimeMs": 257.56,
+            "bytesTransferred": 102440,
+            "kbTransferred": 100.04
+          },
+          {
+            "targetSizeKB": 1000,
+            "syncTimeMs": 1174.18,
+            "bytesTransferred": 1024040,
+            "kbTransferred": 1000.04
+          },
+          {
+            "targetSizeKB": 5000,
+            "syncTimeMs": 2163.63,
+            "bytesTransferred": 5120043,
+            "kbTransferred": 5000.04
+          }
+        ],
+        "fileResults": [
+          {
+            "fileCount": 1,
+            "syncTimeMs": 1869.15
+          },
+          {
+            "fileCount": 20,
+            "syncTimeMs": 1804.37
+          },
+          {
+            "fileCount": 100,
+            "syncTimeMs": 2948.79
+          }
+        ]
+      },
+      "testF": {
+        "error": "[object Object]"
+      },
+      "testG": {
+        "restoreTimeMs": 1249.75,
+        "dataLossUnflushedSaved": true,
+        "opsCount": 100000,
+        "sizeNoGCBytes": 1846790,
+        "sizeGCBytes": 1796790,
+        "compactionRatio": 2.71
+      },
+      "testH": {
+        "numRoomsTested": 50,
+        "initialRssMB": 191.66,
+        "activeRssMB": 121.58,
+        "idleRssMB": 123.41,
+        "memPerActiveRoomKB": -1435.2,
+        "memPerIdleRoomKB": -1397.76,
+        "evictionVerified": true
+      },
+      "testI": {
+        "unthrottled": {
+          "throttled": false,
+          "usersCount": 25,
+          "durationSec": 4,
+          "totalMessages": 8641,
+          "totalBytes": 1609451,
+          "msgsPerSec": 2160.25,
+          "bytesPerSec": 402362.75,
+          "kbPerSec": 392.93
+        },
+        "throttled": {
+          "throttled": true,
+          "usersCount": 25,
+          "durationSec": 4,
+          "totalMessages": 1849,
+          "totalBytes": 343167,
+          "msgsPerSec": 462.25,
+          "bytesPerSec": 85791.75,
+          "kbPerSec": 83.78
+        },
+        "reductionPercent": 78.68
+      },
+      "testJ": {
+        "POST /auth/login": {
+          "10": {
+            "reqPerSec": 85.5,
+            "p50": 113,
+            "p95": 0,
+            "p99": 188,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "50": {
+            "reqPerSec": 82.5,
+            "p50": 573,
+            "p95": 0,
+            "p99": 814,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "200": {
+            "reqPerSec": 76.25,
+            "p50": 2041,
+            "p95": 0,
+            "p99": 2835,
+            "errors": 0,
+            "timeouts": 0
+          }
+        },
+        "GET /rooms": {
+          "10": {
+            "reqPerSec": 103,
+            "p50": 72,
+            "p95": 0,
+            "p99": 346,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "50": {
+            "reqPerSec": 127.5,
+            "p50": 106,
+            "p95": 0,
+            "p99": 929,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "200": {
+            "reqPerSec": 130.25,
+            "p50": 1071,
+            "p95": 0,
+            "p99": 2054,
+            "errors": 0,
+            "timeouts": 0
+          }
+        },
+        "POST /rooms (create room)": {
+          "10": {
+            "reqPerSec": 71,
+            "p50": 63,
+            "p95": 0,
+            "p99": 993,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "50": {
+            "reqPerSec": 138,
+            "p50": 77,
+            "p95": 0,
+            "p99": 931,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "200": {
+            "reqPerSec": 121.25,
+            "p50": 1045,
+            "p95": 0,
+            "p99": 1988,
+            "errors": 0,
+            "timeouts": 0
+          }
+        },
+        "POST /rooms/:id/ws-ticket": {
+          "10": {
+            "reqPerSec": 69,
+            "p50": 55,
+            "p95": 0,
+            "p99": 939,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "50": {
+            "reqPerSec": 141,
+            "p50": 72,
+            "p95": 0,
+            "p99": 1205,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "200": {
+            "reqPerSec": 115.5,
+            "p50": 1069,
+            "p95": 0,
+            "p99": 1873,
+            "errors": 0,
+            "timeouts": 0
+          }
+        }
+      },
+      "testK": {
+        "viewerEditsRejected": true,
+        "oversizedPayloadRejected": false,
+        "otherClientsUnaffected": true
+      },
+      "testL": {
+        "initialDashboardJsKB": 339.44,
+        "editorChunkKB": 41.8,
+        "monacoChunkKB": 2131.29,
+        "totalJsKB": 2512.53,
+        "dashboardLoadTime4GMs": 1636,
+        "lighthouseScore": {
+          "performance": 92,
+          "accessibility": 93,
+          "bestPractices": 100,
+          "seo": 91
+        }
+      }
+    },
+    {
+      "testA": {
+        "2": {
+          "count": 24,
+          "min": 0.73,
+          "max": 1.88,
+          "median": 1.02,
+          "p50": 1.02,
+          "p95": 1.51,
+          "p99": 1.88,
+          "mean": 1.04,
+          "spread": 1.15
+        },
+        "10": {
+          "count": 24,
+          "min": 0.87,
+          "max": 1.86,
+          "median": 1.14,
+          "p50": 1.14,
+          "p95": 1.67,
+          "p99": 1.86,
+          "mean": 1.15,
+          "spread": 1
+        },
+        "25": {
+          "count": 24,
+          "min": 0.57,
+          "max": 1.76,
+          "median": 1.06,
+          "p50": 1.06,
+          "p95": 1.55,
+          "p99": 1.76,
+          "mean": 1.08,
+          "spread": 1.19
+        },
+        "50": {
+          "count": 24,
+          "min": 0.74,
+          "max": 1.9,
+          "median": 1.05,
+          "p50": 1.05,
+          "p95": 1.62,
+          "p99": 1.9,
+          "mean": 1.14,
+          "spread": 1.16
+        }
+      },
+      "testB": [
+        {
+          "targetConns": 100,
+          "targetRooms": 20,
+          "activeConns": 100,
+          "errors": 0,
+          "connectTimeMs": 7881.42,
+          "rssMB": 116.81,
+          "rssDeltaMB": 3.45,
+          "latencyP50": 0,
+          "latencyP95": 0,
+          "eventLoopLagP95": "11.17",
+          "exceeds200ms": false
+        },
+        {
+          "targetConns": 500,
+          "targetRooms": 100,
+          "activeConns": 500,
+          "errors": 0,
+          "connectTimeMs": 38484.24,
+          "rssMB": 132.27,
+          "rssDeltaMB": 15.39,
+          "latencyP50": 0,
+          "latencyP95": 0,
+          "eventLoopLagP95": "11.28",
+          "exceeds200ms": false
+        },
+        {
+          "targetConns": 1000,
+          "targetRooms": 200,
+          "activeConns": 1000,
+          "errors": 0,
+          "connectTimeMs": 76705.49,
+          "rssMB": 170.22,
+          "rssDeltaMB": 32.64,
+          "latencyP50": 0,
+          "latencyP95": 0,
+          "eventLoopLagP95": "11.34",
+          "exceeds200ms": false
+        }
+      ],
+      "testC": {
+        "totalOps": 5000,
+        "numClients": 10,
+        "finalTextLength": 422,
+        "passed": true
+      },
+      "testD": {
+        "reconvergeTimeMs": 787.66,
+        "isByteIdentical": true,
+        "noLostEdits": true,
+        "finalTextLength": 54
+      },
+      "testE": {
+        "sizeResults": [
+          {
+            "targetSizeKB": 10,
+            "syncTimeMs": 242.44,
+            "bytesTransferred": 10275,
+            "kbTransferred": 10.03
+          },
+          {
+            "targetSizeKB": 100,
+            "syncTimeMs": 244.26,
+            "bytesTransferred": 102440,
+            "kbTransferred": 100.04
+          },
+          {
+            "targetSizeKB": 1000,
+            "syncTimeMs": 604.97,
+            "bytesTransferred": 1024040,
+            "kbTransferred": 1000.04
+          },
+          {
+            "targetSizeKB": 5000,
+            "syncTimeMs": 2814.45,
+            "bytesTransferred": 5120043,
+            "kbTransferred": 5000.04
+          }
+        ],
+        "fileResults": [
+          {
+            "fileCount": 1,
+            "syncTimeMs": 4746.58
+          },
+          {
+            "fileCount": 20,
+            "syncTimeMs": 2752.1
+          },
+          {
+            "fileCount": 100,
+            "syncTimeMs": 730.05
+          }
+        ]
+      },
+      "testF": {
+        "crossLatencyP50": 308.14,
+        "crossLatencyP95": 985.99,
+        "crossLatencyP99": 985.99,
+        "awarenessRelayed": false,
+        "sampleCount": 20
+      },
+      "testG": {
+        "restoreTimeMs": 852.21,
+        "dataLossUnflushedSaved": true,
+        "opsCount": 100000,
+        "sizeNoGCBytes": 1646800,
+        "sizeGCBytes": 1796790,
+        "compactionRatio": -9.11
+      },
+      "testH": {
+        "numRoomsTested": 50,
+        "initialRssMB": 152.8,
+        "activeRssMB": 153.55,
+        "idleRssMB": 167.8,
+        "memPerActiveRoomKB": 15.36,
+        "memPerIdleRoomKB": 307.2,
+        "evictionVerified": true
+      },
+      "testI": {
+        "unthrottled": {
+          "throttled": false,
+          "usersCount": 25,
+          "durationSec": 4,
+          "totalMessages": 9147,
+          "totalBytes": 1704349,
+          "msgsPerSec": 2286.75,
+          "bytesPerSec": 426087.25,
+          "kbPerSec": 416.1
+        },
+        "throttled": {
+          "throttled": true,
+          "usersCount": 25,
+          "durationSec": 4,
+          "totalMessages": 1873,
+          "totalBytes": 347471,
+          "msgsPerSec": 468.25,
+          "bytesPerSec": 86867.75,
+          "kbPerSec": 84.83
+        },
+        "reductionPercent": 79.61
+      },
+      "testJ": {
+        "POST /auth/login": {
+          "10": {
+            "reqPerSec": 80.25,
+            "p50": 115,
+            "p95": 0,
+            "p99": 277,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "50": {
+            "reqPerSec": 86.5,
+            "p50": 561,
+            "p95": 0,
+            "p99": 696,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "200": {
+            "reqPerSec": 76.5,
+            "p50": 1991,
+            "p95": 0,
+            "p99": 3291,
+            "errors": 0,
+            "timeouts": 0
+          }
+        },
+        "GET /rooms": {
+          "10": {
+            "reqPerSec": 110.5,
+            "p50": 73,
+            "p95": 0,
+            "p99": 333,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "50": {
+            "reqPerSec": 124,
+            "p50": 136,
+            "p95": 0,
+            "p99": 924,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "200": {
+            "reqPerSec": 136.25,
+            "p50": 1117,
+            "p95": 0,
+            "p99": 2038,
+            "errors": 0,
+            "timeouts": 0
+          }
+        },
+        "POST /rooms (create room)": {
+          "10": {
+            "reqPerSec": 72.5,
+            "p50": 63,
+            "p95": 0,
+            "p99": 1229,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "50": {
+            "reqPerSec": 123.25,
+            "p50": 79,
+            "p95": 0,
+            "p99": 1192,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "200": {
+            "reqPerSec": 137.75,
+            "p50": 1067,
+            "p95": 0,
+            "p99": 2259,
+            "errors": 0,
+            "timeouts": 0
+          }
+        },
+        "POST /rooms/:id/ws-ticket": {
+          "10": {
+            "reqPerSec": 72.25,
+            "p50": 60,
+            "p95": 0,
+            "p99": 1186,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "50": {
+            "reqPerSec": 123.75,
+            "p50": 75,
+            "p95": 0,
+            "p99": 931,
+            "errors": 0,
+            "timeouts": 0
+          },
+          "200": {
+            "reqPerSec": 137.5,
+            "p50": 1065,
+            "p95": 0,
+            "p99": 1999,
+            "errors": 0,
+            "timeouts": 0
+          }
+        }
+      },
+      "testK": {
+        "viewerEditsRejected": true,
+        "oversizedPayloadRejected": false,
+        "otherClientsUnaffected": true
+      },
+      "testL": {
+        "initialDashboardJsKB": 339.44,
+        "editorChunkKB": 41.8,
+        "monacoChunkKB": 2131.29,
+        "totalJsKB": 2512.53,
+        "dashboardLoadTime4GMs": 1643,
+        "lighthouseScore": {
+          "performance": 92,
+          "accessibility": 93,
+          "bestPractices": 100,
+          "seo": 91
+        }
+      }
+    }
+  ]
+}

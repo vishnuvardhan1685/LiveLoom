@@ -1,9 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="6" fill="#0a0a0a"/>
-  <!-- Woven threads motif -->
-  <path d="M8 4 Q14 16 8 28" stroke="#7c6af7" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-  <path d="M16 4 Q22 16 16 28" stroke="#7c6af7" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-  <path d="M24 4 Q30 16 24 28" stroke="#7c6af7" stroke-width="0.8" fill="none" stroke-linecap="round" opacity="0.5"/>
-  <path d="M4 14 Q16 10 28 14" stroke="#7c6af7" stroke-width="0.8" fill="none" stroke-linecap="round" opacity="0.6"/>
-  <path d="M4 20 Q16 24 28 20" stroke="#7c6af7" stroke-width="0.8" fill="none" stroke-linecap="round" opacity="0.6"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="112" fill="#121315"/>
+  <rect x="32" y="32" width="448" height="448" rx="80" fill="#1f2022" stroke="#ff516a" stroke-width="16"/>
+  <!-- Loom weave structure -->
+  <path d="M160 128 L160 384 M256 128 L256 384 M352 128 L352 384" stroke="#ffb2b7" stroke-width="32" stroke-linecap="round"/>
+  <path d="M112 200 L400 200 M112 312 L400 312" stroke="#4cd7f6" stroke-width="32" stroke-linecap="round"/>
+  <circle cx="256" cy="256" r="24" fill="#4edea3"/>
 </svg>

@@ -92,7 +92,6 @@ export function useYjsDoc({ roomId, ticket, user, role, onNeedNewTicket }) {
       if (!state?.user) return
       currentStatusRef.current = nextStatus
       ws.awareness.setLocalStateField('user', { ...state.user, status: nextStatus })
-      console.log(`[PRESENCE] room=${roomId} status → ${nextStatus}`) // ← REMOVE AFTER VERIFY
     }
 
     // ── Idle detection ────────────────────────────────────────────────────────
@@ -133,8 +132,7 @@ export function useYjsDoc({ roomId, ticket, user, role, onNeedNewTicket }) {
     }
 
     const onAwarenessChange = () => {
-      const localStatus = ws.awareness.getLocalState()?.user?.status ?? 'unknown'
-      console.log(`[CLIENT AWARENESS CHANGE] room=${roomId} clientID=${ws.awareness.clientID} localStatus=${localStatus}`) // ← REMOVE AFTER VERIFY
+      // Awareness state updated
     }
     ws.awareness.on('change', onAwarenessChange)
 
@@ -185,6 +183,7 @@ export function useYjsDoc({ roomId, ticket, user, role, onNeedNewTicket }) {
     // ── Connection close handling ─────────────────────────────────────────────
     // 4001: token expired/invalid → fetch a new ticket (triggers effect re-run).
     // 4002: room full → surface error.
+    // 4403: room deleted by owner → stop reconnecting, redirect to dashboard.
     // All others: y-websocket auto-reconnects with the same HMAC token.
     const handleConnClose = (event) => {
       if (event.code === 4001) {
@@ -196,6 +195,23 @@ export function useYjsDoc({ roomId, ticket, user, role, onNeedNewTicket }) {
       }
       if (event.code === 4002) {
         setWsError('full')
+        return
+      }
+      if (event.code === 4403) {
+        // Destroy immediately so y-websocket's internal reconnect timer never fires.
+        ws.destroy()
+        setWsError('deleted')
+        return
+      }
+      if (event.code === 1008) {
+        ws.destroy()
+        setWsError('rate-limited')
+        return
+      }
+      if (event.code === 1009) {
+        ws.destroy()
+        setWsError('payload-too-large')
+        return
       }
     }
     ws.on('connection-close', handleConnClose)
