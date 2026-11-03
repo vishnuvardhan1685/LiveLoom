@@ -45,7 +45,10 @@ async function runConvergenceTest() {
   })
 
   await Promise.all(clientPromises)
-  await new Promise((r) => setTimeout(r, 1500))
+  // Wait longer in QUICK_MODE for Docker+Redis pub/sub latency:
+  // 10 clients doing 1000 concurrent ops need ~3s to fully converge
+  // through the nginx → server → redis → server → client chain.
+  await new Promise((r) => setTimeout(r, process.env.QUICK_MODE ? 3500 : 1500))
 
   const firstText = clients[0].doc.getText('convergence_doc').toString()
   let isIdentical = true

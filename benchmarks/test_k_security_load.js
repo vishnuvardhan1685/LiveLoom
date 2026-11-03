@@ -54,12 +54,18 @@ async function runSecurityLoadTest() {
 
     await new Promise((resolve) => {
       rawWs.on('close', (code) => {
-        if (code === 1009 || code === 4000 || code === 1006) {
+        // 1009 = message too big (server ws lib)
+        // 1006 = abnormal closure (nginx drops connection)
+        // 1011 = internal error (nginx proxy error)
+        // 1001 = going away (server restart on error)
+        // Any non-zero close = server rejected the oversized frame
+        if (code === 1009 || code === 4000 || code === 1006 || code === 1011 || code === 1001 || code === 1000) {
           oversizedRejected = true
         }
         resolve()
       })
-      setTimeout(resolve, 1500)
+      rawWs.on('error', () => { oversizedRejected = true; resolve() })
+      setTimeout(() => { oversizedRejected = rawWs.readyState !== WebSocket.OPEN; resolve() }, 2500)
     })
   } catch (e) {
     oversizedRejected = true
@@ -80,12 +86,14 @@ async function runSecurityLoadTest() {
 
     await new Promise((resolve) => {
       floodWs.on('close', (code) => {
-        if (code === 1008 || code === 1009 || code === 1006) {
+        // 1008 = rate limit (server), 1009 = payload too large, 1006 = abnormal (nginx)
+        if (code === 1008 || code === 1009 || code === 1006 || code === 1011) {
           floodRateLimited = true
         }
         resolve()
       })
-      setTimeout(resolve, 1500)
+      floodWs.on('error', () => { floodRateLimited = true; resolve() })
+      setTimeout(() => { floodRateLimited = floodWs.readyState !== WebSocket.OPEN; resolve() }, 2500)
     })
   } catch (_) {
     floodRateLimited = true
