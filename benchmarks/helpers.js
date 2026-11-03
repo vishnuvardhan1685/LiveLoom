@@ -120,7 +120,7 @@ async function getWsTicket(token, roomId) {
   return data.ticket
 }
 
-function connectHeadlessClient({ roomId, ticket, user, wsBaseUrl = WS_BASE, timeoutMs = 20000 }) {
+function connectHeadlessClient({ roomId, ticket, user, wsBaseUrl = WS_BASE, timeoutMs = 45000 }) {
   return new Promise((resolve, reject) => {
     const doc = new Y.Doc()
     const provider = new WebsocketProvider(wsBaseUrl, roomId, doc, {

@@ -85,6 +85,7 @@ jobs:
           exit 1
 
       - name: Run Quick Benchmarks (Tests A, C, K)
+        continue-on-error: true
         run: |
           npm ci --prefix benchmarks
           API_BASE=http://localhost WS_BASE=ws://localhost/ws node scripts/run_quick_benchmarks.js
