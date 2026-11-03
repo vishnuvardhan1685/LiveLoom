@@ -7,9 +7,11 @@ const docSync = require('./docSync');
 const roomState = require('../services/roomstate.service');
 const logger = require('../utils/logger');
 
-const PERMISSION_CHANNEL = 'permission:update';
+const PERMISSION_CHANNEL   = 'permission:update';
+const ROOM_DELETED_CHANNEL = 'room:deleted';
+const USER_EVENT_PREFIX    = 'user-events:';
 
-const docChannel = (roomId) => `room:${roomId}:doc`;
+const docChannel       = (roomId) => `room:${roomId}:doc`;
 const awarenessChannel = (roomId) => `room:${roomId}:awareness`;
 
 // Rooms this instance is currently subscribed to — subscribe once per room
@@ -118,8 +120,7 @@ async function publishAwarenessUpdate(roomId, update) {
   await publisher.publish(awarenessChannel(roomId), Buffer.from(update));
 }
 
-const ROOM_DELETED_CHANNEL = 'room:deleted';
-const USER_EVENT_PREFIX    = 'user-events:';
+// (ROOM_DELETED_CHANNEL and USER_EVENT_PREFIX are declared at the top of the file)
 
 const sseClients = new Map();
 
