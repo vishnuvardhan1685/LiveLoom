@@ -19,6 +19,11 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
+          # No root package-lock.json exists; point to the sub-package lockfiles
+          # so the cache key resolves correctly and the step does not fail.
+          cache-dependency-path: |
+            server/package-lock.json
+            client/package-lock.json
 
       - name: Install Server Dependencies
         run: npm ci --prefix server
@@ -108,6 +113,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
+          cache-dependency-path: |
+            server/package-lock.json
+            client/package-lock.json
 
       - name: Audit Production Dependencies (Warn Only)
         continue-on-error: true
